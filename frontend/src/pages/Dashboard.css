@@ -1,0 +1,100 @@
+/* Dark theme styling for Dashboard component */
+
+/* Card dark theme with user-friendly colors */
+.dashboard-dark .ant-card {
+  background-color: #1f2937 ;
+  border-color: #374151 !important;
+  border-radius: 12px !important;
+}
+
+.dashboard-dark .ant-card-head {
+  background-color: #1f2937 !important;
+  border-bottom: 1px solid #374151 !important;
+}
+
+.dashboard-dark .ant-card-head-title {
+  color: #f3f4f6 !important;
+}
+
+.dashboard-dark .ant-card-body {
+  background-color: #1f2937 !important;
+}
+
+/* Statistics cards dark theme */
+.dashboard-dark .ant-statistic-title {
+  color: #e5e7eb !important;
+}
+
+.dashboard-dark .ant-statistic-content {
+  color: #f3f4f6 !important;
+}
+
+/* Button dark theme with user-friendly colors */
+.dashboard-dark .ant-btn-primary {
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+}
+
+.dashboard-dark .ant-btn-primary:hover {
+  background-color: #2563eb !important;
+  border-color: #2563eb !important;
+}
+
+/* Spin component dark theme with user-friendly colors */
+.dashboard-dark .ant-spin-dot-item {
+  background-color: #3b82f6 !important;
+}
+
+/* Hamburger menu button styling */
+.hamburger-menu-btn:hover {
+  color: #2563eb !important;
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Ensure overlay sidebar is above everything */
+.sidebar-overlay {
+  z-index: 9999 !important;
+}
+
+.sidebar-container {
+  z-index: 10000 !important;
+}
+.dashboard-dark .ant-typography {
+  color: #f3f4f6 !important;
+}
+
+.dashboard-dark .ant-typography-copy {
+  color: #a78bfa !important;
+}
+
+/* Space component dark theme */
+.dashboard-dark .ant-space-item {
+  color: #f3f4f6 !important;
+}
+
+/* Row and Col dark theme */
+.dashboard-dark .ant-row {
+  color: #f3f4f6 !important;
+}
+
+/* Ensure all text is white/light in dark theme */
+.dashboard-dark {
+  color: #f3f4f6 !important;
+}
+
+.dashboard-dark * {
+  color: inherit !important;
+}
+
+/* Override for specific text colors */
+.dashboard-dark .ant-text-secondary {
+  color: #9ca3af !important;
+}
+
+.dashboard-dark .ant-text {
+  color: #f3f4f6 !important;
+}
+
+.dashboard-dark .ant-title {
+  color: #f3f4f6 !important;
+}

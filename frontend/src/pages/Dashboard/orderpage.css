@@ -1,0 +1,209 @@
+/* Table body text */
+.ant-table {
+  color: #f3f4f6;
+  background: #2d3748;
+}
+
+/* Header text */
+.ant-table-thead > tr > th {
+  background: #1f2937 !important;
+  border-bottom: 1px solid #264a8446;
+  color: #f3f4f6 !important;
+}
+
+/* Body cells */
+.ant-table-tbody > tr > td {
+  background: #1f2937;
+  border-bottom: 1px solid #374151;
+  color: #f3f4f6;
+}
+
+/* Hover row */
+.ant-table-tbody > tr:hover > td {
+  background: #374151 !important;
+}
+
+/* Pagination text */
+.ant-pagination {
+  color: #9ca3af;
+}
+
+.ant-pagination-item a {
+  color: #9ca3af;
+  background: #374151;
+  border-color: #4b5563;
+}
+
+.ant-pagination-item:hover a {
+  color: #3b82f6;
+}
+
+.ant-pagination-item-active a {
+  color: #3b82f6;
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.ant-pagination-prev,
+.ant-pagination-next {
+  color: #9ca3af;
+  background: #374151;
+  border-color: #4b5563;
+}
+
+.ant-pagination-prev:hover,
+.ant-pagination-next:hover {
+  color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.ant-pagination-options {
+  color: #9ca3af;
+}
+
+.ant-pagination-options-quick-jumper input {
+  background: #374151;
+  border-color: #4b5563;
+  color: #f3f4f6;
+}
+
+/* Pagination size changer dropdown */
+.ant-pagination-options-size-changer .ant-select-selector {
+  background: #374151 !important;
+  border: 1px solid #4b5563 !important;
+  color: #f3f4f6 !important;
+}
+
+.ant-pagination-options-size-changer:hover .ant-select-selector {
+  border-color: #3b82f6 !important;
+}
+
+.ant-pagination-options-size-changer.ant-select-focused .ant-select-selector {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+}
+
+.ant-select-dropdown {
+  background: #374151 !important;
+  border: 1px solid #4b5563 !important;
+}
+
+.ant-select-item {
+  color: #f3f4f6;
+}
+
+.ant-select-item:hover {
+  background: #4b5563;
+}
+
+.ant-select-item-option-selected {
+  background: #3b82f6;
+  color: #fff;
+}
+.ant-select-item:hover {
+  background: #4b5563 !important;
+  color: #f3f4f6;
+}
+
+.ant-select-item-option-selected {
+  background: #3b82f6 !important;
+  color: #fff;
+}
+
+/* Select input field (when not clicked) */
+.ant-select-selector {
+  background: #374151 !important;
+  border: 1px solid #4b5563 !important;
+  color: #f3f4f6 !important;
+}
+
+/* Select input field on hover */
+.ant-select:hover .ant-select-selector {
+  border-color: #3b82f6 !important;
+}
+
+/* Select input field when focused/open */
+.ant-select-focused .ant-select-selector {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Dropdown menu */
+.ant-select-dropdown-menu {
+  background: #374151;
+}
+
+/* Custom scrollbar for order items modal */
+.order-items-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.order-items-scrollable::-webkit-scrollbar-track {
+  background: #1f2937;
+  border-radius: 3px;
+}
+
+.order-items-scrollable::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 3px;
+}
+
+.order-items-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Dark modal wrapper to eliminate white backgrounds */
+.dark-modal-wrapper {
+  background: transparent !important;
+}
+
+.dark-modal-wrapper .ant-modal {
+  background: #0f172a !important;
+  border: 1px solid #374151 !important;
+}
+
+.dark-modal-wrapper .ant-modal-content {
+  background: #0f172a !important;
+  border: 1px solid #374151 !important;
+}
+
+.dark-modal-wrapper .ant-modal-header {
+  background: #0f172a !important;
+  border-bottom: 1px solid #374151 !important;
+}
+
+.dark-modal-wrapper .ant-modal-body {
+  background: #0f172a !important;
+}
+
+.dark-modal-wrapper .ant-modal-close {
+  background: transparent !important;
+  color: #f3f4f6 !important;
+}
+
+.dark-modal-wrapper .ant-modal-close:hover {
+  background: #374151 !important;
+  color: #fff !important;
+}
+
+/* Target all modal wrapper divs */
+.ant-modal-root,
+.ant-modal-container,
+.ant-modal-wrap,
+.ant-modal-centered {
+  background: transparent !important;
+}
+
+/* Force dark background on any potential white areas */
+.ant-modal * {
+  background-color: transparent !important;
+}
+
+.ant-modal-content * {
+  background-color: inherit !important;
+}
+
+/* Ensure modal mask is dark */
+.ant-modal-mask {
+  background: rgba(0, 0, 0, 0.8) !important;
+}

@@ -1,0 +1,259 @@
+/* Overlay Sidebar Styles */
+
+/* Overlay */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+}
+
+/* Sidebar Container */
+.sidebar-container {
+  position: fixed;
+  top: 0;
+  left: -320px;
+  width: '320px';
+  height: 100vh;
+  background: #ffffff;
+  box-shadow: 2px 0 16px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  transition: left 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  background:#1f2937;
+}
+
+.sidebar-container.open {
+  left: 0;
+}
+
+/* Header */
+.sidebar-header {
+  padding: 24px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #1f2937;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  
+}
+
+.brand-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: bold;
+  font-size: 18px;
+  margin-right: 12px;
+}
+
+.brand-text {
+  flex: 1;
+}
+
+.brand-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #262626;
+  line-height: 1.2;
+}
+
+.brand-subtitle {
+  font-size: 12px;
+  color: #8c8c8c;
+  line-height: 1.2;
+}
+
+.sidebar-close-btn {
+  color: #595959;
+  font-size: 16px;
+  border: none;
+  background: transparent;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.sidebar-close-btn:hover {
+  color: #262626;
+  background-color: #f5f5f5;
+}
+
+/* User Profile */
+.sidebar-profile {
+  padding: 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.profile-info {
+  display: flex;
+  align-items: center;
+}
+
+.profile-avatar {
+  background-color: #f0f0f0;
+  color: #595959;
+  margin-right: 12px;
+  border: 2px solid #e8e8e8;
+}
+
+.profile-details {
+  flex: 1;
+}
+
+.profile-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #262626;
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+
+.profile-role {
+  font-size: 12px;
+  color: #8c8c8c;
+  line-height: 1.2;
+}
+
+/* Navigation Menu */
+.sidebar-menu {
+  flex: 1;
+  padding: 16px 0;
+  overflow-y: auto;
+}
+
+.sidebar-nav-menu {
+  border: none;
+  background: transparent;
+  font-size: 14px;
+}
+
+.sidebar-nav-menu .ant-menu-item {
+  margin: 4px 16px;
+  border-radius: 6px;
+  color: #595959;
+  transition: all 0.3s ease;
+}
+
+.sidebar-nav-menu .ant-menu-item:hover {
+  background-color: #f5f5f5;
+  color: #1890ff;
+}
+
+.sidebar-nav-menu .ant-menu-item-selected {
+  background: #262a79a8;
+  color: blue;
+}
+
+.sidebar-nav-menu .ant-menu-item-danger {
+  color: #ff4d4f;
+}
+
+.sidebar-nav-menu .ant-menu-item-danger:hover {
+  background-color: #fff2f0;
+  color: #44010200;
+}
+
+.sidebar-nav-menu .ant-menu-item-divider {
+  background-color: #f0f0f0;
+  margin: 8px 16px;
+}
+
+/* Footer */
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #f0f0f0;
+  background: #1f2937;
+}
+
+.status-indicator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.status-label {
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #52c41a;
+}
+
+.version-info {
+  font-size: 11px;
+  color: #bfbfbf;
+  line-height: 1.4;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sidebar-container {
+    width: 280px;
+    left: -280px;
+  }
+}
+
+/* Animation classes */
+.sidebar-overlay {
+  animation: fadeIn 0.3s ease;
+}
+
+.sidebar-container.open {
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    left: -320px;
+  }
+  to {
+    left: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  @keyframes slideIn {
+    from {
+      left: -280px;
+    }
+    to {
+      left: 0;
+    }
+  }
+}

@@ -1,0 +1,155 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.25s ease;
+  z-index: 9999;
+  padding: 1rem;
+}
+
+/* Redesigned Modal Box */
+.modal-box {
+  background: #ffffff;
+  padding: 0;                                     /* REMOVE default padding */
+  border-radius: 18px;
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;                               /* Allow header/border sections */
+  animation: slideUp 0.3s ease;
+  box-shadow: 0 25px 35px -5px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+
+/* Header Section (new look, same structure) */
+.modal-box > div:first-child {
+  padding: 2rem 1.5rem 1.2rem;
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  text-align: center;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+/* Icon Circle */
+.modal-box > div:first-child > div {
+  width: 70px !important;
+  height: 70px !important;
+  background: #ffffff !important;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Title */
+.modal-box h3 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0.5rem 0 0.2rem;
+  color: #b91c1c;
+  text-align: center;
+}
+
+/* Sub text inside header */
+.modal-box > div:first-child p {
+  color: #6b7280;
+  margin-top: 0.4rem;
+  font-size: 0.95rem;
+}
+
+/* Body Section */
+.modal-box p {
+  padding: 1.5rem;
+  font-size: 1rem;
+  color: #4b5563;
+  line-height: 1.6;
+  margin: 0 !important;
+  text-align: center;
+}
+
+/* Highlighted text */
+.modal-box p strong {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+/* Buttons Section */
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 1.5rem;
+  background: #fafafa;
+  border-top: 1px solid #f3f4f6;
+}
+
+/* Cancel Button */
+.cancel-btn {
+  background: #f3f4f6;
+  color: #4b5563;
+  border: 2px solid #e5e7eb;
+  padding: 16px 20px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: 0.2s ease;
+  flex: 1;
+}
+
+.cancel-btn:hover {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+}
+
+/* Confirm Button */
+.remove-btn {
+  flex: 1;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+  padding: 16px 20px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: 0.2s ease;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25);
+}
+
+.remove-btn:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(239, 68, 68, 0.35);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .cancel-btn, .remove-btn {
+    width: 100%;
+  }
+}
