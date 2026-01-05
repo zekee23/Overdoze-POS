@@ -97,19 +97,19 @@ const ajRegistration = arcjetKey ? arcjet({
   ],
 }) : null;
 
-// Arcjet instance for products refresh endpoint - more lenient for authenticated users
+// Arcjet instance for products refresh endpoint - production-ready limits
 const ajProductsRefresh = arcjetKey ? arcjet({
   key: arcjetKey,
-  characteristics: ["userId"], // Rate limit by user ID instead of IP
+  characteristics: ["ip.src"], // IP-based rate limiting
   rules: [
     shield({
       mode: "LIVE",
     }),
     tokenBucket({
       mode: "LIVE",
-      refillRate: 5, // 30 requests per minute
+      refillRate: 10, // 10 requests per minute (reasonable for production)
       interval: 60, // 1 minute in seconds
-      capacity: 25, // Maximum 35 requests per minute (burst capacity)
+      capacity: 20, // 20 burst capacity (allows occasional bursts)
     }),
   ],
 }) : null;
@@ -213,11 +213,6 @@ export const productsRefreshProtection = async (req, res, next) => {
   }
 
   try {
-    // Add user ID to request for rate limiting
-    if (req.user && req.user.id) {
-      req.userId = req.user.id.toString();
-    }
-
     const decision = await ajProductsRefresh.protect(req, { requested: 1 });
     
     if (decision.isDenied()) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Card, 
@@ -9,12 +9,13 @@ import {
   Tag, 
   message, 
   Modal, 
-  Row, 
-  Col, 
+  Row,
+  Col,
+ 
   Statistic,
   Form,
   Input,
-  InputNumber,
+  
   Select,
   Popconfirm
 } from 'antd';
@@ -33,6 +34,7 @@ import OverlaySidebar from '../../components/OverlaySidebar';
 import api from '../../utils/api';
 import '../Dashboard.css';
 import './productpage.css';
+import VariantsModal from '../../components/variants/VariantsModal';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -53,13 +55,12 @@ const ProductPage = () => {
   const [createdProductId, setCreatedProductId] = useState(null);
   const [variants, setVariants] = useState([]);
   const [form] = Form.useForm();
-  const [variantsForm] = Form.useForm();
   const navigate = useNavigate();
 
   // Performance optimization: use refs for debouncing and local state
   const searchTimeoutRef = useRef(null);
   const variantTimeoutRef = useRef(null);
-  const searchInputRef = useRef(null);
+  const searchInputRef = useRef(null); 
 
   // Static categories with IDs 1-7
   const categories = [
@@ -73,20 +74,56 @@ const ProductPage = () => {
     { id: 8, name: 'Milk-based' },
     { id: 9, name: 'OD Lemonade' },
     { id: 10, name: 'OD Float' },
-    { id: 11, name: 'OD' +'s after hours' },
-    { id: 12, name: 'Protein(Iced/Ice Blend' }
+    { id: 11, name: "OD's after hours" },
+    { id: 12, name: 'Protein(Iced/Ice Blend)' }
   ];
 
   // Memoize categories to prevent unnecessary re-renders
   const memoizedCategories = useMemo(() => categories, []);
 
-  const fetchProducts = async () => {
+  // Cache configuration
+  const CACHE_KEY = 'products_cache';
+  const CACHE_DURATION = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+
+  // Get cached products or fetch new ones
+  const fetchProducts = async (forceRefresh = false) => {
     try {
+      // Check cache first (unless force refresh)
+      if (!forceRefresh) {
+        const cachedData = localStorage.getItem(CACHE_KEY);
+        if (cachedData) {
+          const { data, timestamp } = JSON.parse(cachedData);
+          const now = Date.now();
+          
+          // Use cache if it's still valid (less than 30 days old)
+          if (now - timestamp < CACHE_DURATION) {
+            const sortedProducts = data.sort((a, b) => a.product_id - b.product_id);
+            setProducts(sortedProducts);
+            setFilteredProducts(sortedProducts);
+            setLastRefreshTime(timestamp);
+            setLoading(false);
+            return;
+          }
+        }
+      }
+
+      // Fetch fresh data from API
       setLoading(true);
       const response = await api.get('/dashboard/products');
       const sortedProducts = (response.data || []).sort((a, b) => a.product_id - b.product_id);
+      
+      // Update state
       setProducts(sortedProducts);
       setFilteredProducts(sortedProducts);
+      setLastRefreshTime(Date.now());
+      
+      // Cache the fresh data
+      const cacheData = {
+        data: sortedProducts,
+        timestamp: Date.now()
+      };
+      localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+      
     } catch (error) {
       message.error('Failed to load products');
     } finally {
@@ -97,10 +134,33 @@ const ProductPage = () => {
   // Refresh function for the refresh button
   const handleRefresh = async () => {
     try {
-      await fetchProducts();
-      message.success('Products refreshed successfully');
+      setLoading(true);
+      const response = await api.post('/dashboard/products/refresh');
+      const sortedProducts = (response.data.data || []).sort((a, b) => a.product_id - b.product_id);
+      
+      // Update state
+      setProducts(sortedProducts);
+      setFilteredProducts(sortedProducts);
+      setLastRefreshTime(Date.now());
+      
+      // Cache the fresh data
+      const cacheData = {
+        data: sortedProducts,
+        timestamp: Date.now()
+      };
+      localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+      
+      message.success(response.data.message || 'Products refreshed successfully');
     } catch (error) {
-      message.error('Failed to refresh products');
+      if (error.response?.status === 429) {
+        // Rate limited
+        const retryAfter = error.response.data?.retryAfter || 60;
+        message.error(`Too many refresh requests. Please wait ${retryAfter} seconds.`);
+      } else {
+        message.error('Failed to refresh products');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -115,9 +175,6 @@ const ProductPage = () => {
   }
 
   searchTimeoutRef.current = setTimeout(() => {
-    // Update the search term state only after debounce
-    setSearchTerm(searchValue);
-    
     if (!searchValue.trim()) {
       setFilteredProducts(products);
       return;
@@ -135,10 +192,9 @@ const ProductPage = () => {
 
   // Handle search input changes - immediate UI update, debounced state update
   const handleSearch = useCallback((value) => {
-    // Update input value immediately for responsive typing
-    if (searchInputRef.current) {
-      searchInputRef.current.value = value;
-    }
+    // Update search term immediately for responsive typing
+    setSearchTerm(value);
+    
     // Debounce the actual search logic
     debouncedSearch(value);
   }, [debouncedSearch]);
@@ -164,6 +220,7 @@ const ProductPage = () => {
     try {
       await api.delete(`/dashboard/products/${productId}`);
       message.success('Product deleted successfully!');
+      localStorage.removeItem(CACHE_KEY); // Clear cache after deletion
       fetchProducts();
     } catch (error) {
       message.error('Failed to delete product');
@@ -179,6 +236,7 @@ const ProductPage = () => {
         setModalVisible(false);
         form.resetFields();
         setEditingProduct(null);
+        localStorage.removeItem(CACHE_KEY); // Clear cache after update
         fetchProducts();
       } else {
         // Create basic product first
@@ -198,140 +256,53 @@ const ProductPage = () => {
     }
   };
 
-  const handleVariantsSubmit = async (values) => {
+  const handleVariantsSubmit = async () => {
     try {
       setSubmitting(true);
       
+      // Validate variants before submission
+      if (variants.length === 0) {
+        message.error('Please add at least one variant');
+        return;
+      }
+      
+      // Validate each variant has required fields
+      const invalidVariants = variants.filter(v => {
+  const price = Number(v.price);
+  return !v.size_label || isNaN(price) || price <= 0;
+});
+
+      if (invalidVariants.length > 0) {
+        message.error('All variants must have a size and valid price');
+        return;
+      }
+      
       // Create variants for the product
-      for (const variant of values.variants) {
+      for (const variant of variants) {
         await api.post(`/dashboard/products/${createdProductId}/variants`, {
           size_label: variant.size_label,
-          price: variant.price,
+          price: Number(variant.price),
           is_default: variant.is_default || false
         });
       }
+
       
       message.success('Variants added successfully!');
       setVariantsModalVisible(false);
-      setVariantsForm.resetFields();
       setVariants([]);
       setCreatedProductId(null);
+      localStorage.removeItem(CACHE_KEY); // Clear cache after adding variants
       fetchProducts();
     } catch (error) {
-      message.error('Failed to add variants');
+      console.error('Variants submission error:', error);
+      message.error('Failed to add variants: ' + (error.response?.data?.message || error.message));
     } finally {
       setSubmitting(false);
     }
   };
 
   // Performance optimized variant change handler with minimal debouncing
-  const handleVariantChange = useCallback((key, field, value) => {
-    // Update state immediately for responsive typing
-    setVariants(prevVariants => 
-      prevVariants.map(v => 
-        v.key === key ? { ...v, [field]: value } : v
-      )
-    );
-  }, []);
-
-  // Optimized variant management functions
-  const handleAddVariant = useCallback(() => {
-    const newVariant = {
-      key: Date.now() + Math.random(), // More unique key
-      size_label: '',
-      price: 0,
-      is_default: false
-    };
-    setVariants(prev => [...prev, newVariant]);
-  }, []);
-
-  const handleRemoveVariant = useCallback((key) => {
-    setVariants(prev => prev.filter(v => v.key !== key));
-  }, []);
-
-  // Simplified variant component for better typing performance
-  const VariantCard = ({ variant, onChange, onRemove }) => {
-    return (
-      <Card
-        key={variant.key}
-        size="small"
-        style={{ 
-          marginBottom: '16px', 
-          backgroundColor: '#ffff', 
-          borderColor: '#4b5563',
-          borderRadius: '8px'
-        }}
-      >
-        <Row gutter={16} align="middle">
-          <Col span={8}>
-            <Select
-              placeholder="Select Size"
-              value={variant.size_label}
-              onChange={(value) => onChange(variant.key, 'size_label', value)}
-              style={{ 
-                width: '100%',
-                backgroundColor: '#fffff', 
-                borderColor: '#4b5563', 
-                color: '#333',
-                borderRadius: '6px'
-              }}
-            >
-              <Option value="16oz">16oz</Option>
-              <Option value="22oz">22oz</Option>
-            </Select>
-          </Col>
-          <Col span={8}>
-            <InputNumber
-              placeholder="Price"
-              value={variant.price}
-              onChange={(value) => onChange(variant.key, 'price', value)}
-              style={{ 
-                width: '100%', 
-                backgroundColor: '#fffff', 
-                borderColor: '#4b5563', 
-                color: '#e5e7eb',
-                borderRadius: '6px'
-              }}
-              min={0}
-              step={0.01}
-              precision={2}
-              formatter={value => `₱ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={value => value.replace(/₱\s?|(,*)/g, '')}
-            />
-          </Col>
-          <Col span={6}>
-            <div style={{ display: 'flex', alignItems: 'center', padding: '8px 12px', backgroundColor: '#1f2937', borderRadius: '6px' }}>
-              <input
-                type="checkbox"
-                checked={variant.is_default}
-                onChange={(e) => onChange(variant.key, 'is_default', e.target.checked)}
-                style={{ 
-                  marginRight: '8px',
-                  backgroundColor: '#4b5563',
-                  borderColor: '#6b7280'
-                }}
-              />
-              <Text style={{ color: '#e5e7eb', fontWeight: 500 }}>Default</Text>
-            </div>
-          </Col>
-          <Col span={2}>
-            <Button
-              type="text"
-              danger
-              icon={<DeleteOutlined />}
-              onClick={() => onRemove(variant.key)}
-              style={{ 
-                color: '#ef4444',
-                backgroundColor: '#374151',
-                borderColor: '#4b5563',
-                borderRadius: '6px'
-              }}
-            />
-          </Col>
-        </Row>
-      </Card>
-    );
-  };
+  
 
   const columns = [
     { 
@@ -353,7 +324,7 @@ const ProductPage = () => {
       dataIndex: 'category_name', 
       key: 'category_name', 
       width: 120,
-      render: (text) => <Text style={{ color: '#9ca3af' }}>{text}</Text>
+      render: (text) => <Text style={{ color: '#ffffff' }}>{text}</Text>
     },
  
     {
@@ -716,7 +687,7 @@ const ProductPage = () => {
               <Input
                 ref={searchInputRef}
                 placeholder="Search products..."
-                defaultValue={searchTerm}
+                value={searchTerm}
                 onChange={(e) => handleSearch(e.target.value)}
                 style={{ 
                   width: '250px', 
@@ -729,13 +700,24 @@ const ProductPage = () => {
             </div>
           }
           extra={
-            <Button
-              type="primary"
-              onClick={handleCreate}
-              style={{ backgroundColor: '#10b981', borderColor: '#10b981' }}
-            >
-              Add Product
-            </Button>
+            <Space>
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={handleRefresh}
+                loading={loading}
+                style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
+                title="Refresh products"
+              >
+                Refresh
+              </Button>
+              <Button
+                type="primary"
+                onClick={handleCreate}
+                style={{ backgroundColor: '#10b981', borderColor: '#10b981' }}
+              >
+                Add Product
+              </Button>
+            </Space>
           }
         >
           <Table
@@ -757,10 +739,12 @@ const ProductPage = () => {
         {/* Create/Edit Modal */}
         <Modal
           title={
-            <Space>
-              {editingProduct ? <EditOutlined style={{ color: '#3b82f6' }} /> : <PlusOutlined style={{ color: '#10b981' }} />}
-              <span>{editingProduct ? 'Edit Product' : 'Create New Product'}</span>
-            </Space>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {editingProduct ? <EditOutlined style={{ color: '#3b82f6', fontSize: '18px' }} /> : <PlusOutlined style={{ color: '#10b981', fontSize: '18px' }} />}
+              <span style={{ color: '#f3f4f6', fontSize: '16px', fontWeight: 'bold' }}>
+                {editingProduct ? 'Edit Product' : 'Create New Product'}
+              </span>
+            </div>
           }
           open={modalVisible}
           onCancel={() => {
@@ -770,6 +754,35 @@ const ProductPage = () => {
           }}
           footer={null}
           width={600}
+          centered
+          closable={true}
+          styles={{
+            body: { 
+              backgroundColor: '#0f172a', 
+              color: '#f3f4f6', 
+              padding: '16px',
+              borderRadius: '8px'
+            },
+            header: { 
+              backgroundColor: '#0f172a', 
+              borderBottom: '1px solid #374151',
+              borderRadius: '8px 8px 0 0',
+              padding: '16px 20px'
+            },
+            content: { 
+              backgroundColor: '#0f172a', 
+              color: '#f3f4f6',
+              borderRadius: '8px',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              border: '1px solid #374151'
+            },
+            mask: { 
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              backdropFilter: 'blur(4px)'
+            }
+          }}
+          wrapClassName="dark-modal-wrapper"
+          zIndex={1000}
         >
           <Form
             form={form}
@@ -781,7 +794,7 @@ const ProductPage = () => {
               label="Product Name"
               rules={[{ required: true, message: 'Please enter product name' }]}
             >
-              <Input placeholder="Enter product name" style={{ backgroundColor: '#ffffff', borderColor: '#4b5563', color: '#333', borderRadius: '6px' }} />
+              <Input placeholder="Enter product name" style={{ backgroundColor: '#374151', borderColor: '#4b5563', color: '#f3f4f6', borderRadius: '6px' }} />
             </Form.Item>
 
             <Form.Item
@@ -789,7 +802,7 @@ const ProductPage = () => {
               label="Category"
               rules={[{ required: true, message: 'Please select a category' }]}
             >
-              <Select placeholder="Select category" style={{ color: '#333' }}>
+              <Select placeholder="Select category" style={{ color: '#f3f4f6' }}>
                 {memoizedCategories.map(cat => (
                   <Option key={cat.id} value={cat.id}>
                     {cat.name}
@@ -820,72 +833,19 @@ const ProductPage = () => {
           </Form>
         </Modal>
 
-        {/* Variants Modal */}
-        <Modal
-          title={
-            <Space>
-              <PlusOutlined style={{ color: '#10b981' }} />
-              <span>Add Product Variants</span>
-            </Space>
-          }
-          open={variantsModalVisible}
-          onCancel={() => {
-            setVariantsModalVisible(false);
-            setVariantsForm.resetFields();
-            setVariants([]);
-            setCreatedProductId(null);
-          }}
-          footer={null}
-          width={800}
-        >
-          <div style={{ marginBottom: '16px' }}>
-            <Text style={{ color: '#333', fontSize: '14px', fontWeight: 500 }}>
-              Add variants for your product. Each variant can have different sizes and prices.
-            </Text>
-          </div>
+        <VariantsModal
+  open={variantsModalVisible}
+  onClose={() => {
+    setVariantsModalVisible(false);
+    setVariants([]);
+    setCreatedProductId(null);
+  }}
+  variants={variants}
+  setVariants={setVariants}
+  submitting={submitting}
+  onSubmit={handleVariantsSubmit}
+/>
 
-          <div style={{ marginBottom: '16px' }}>
-            <Button
-              type="dashed"
-              onClick={handleAddVariant}
-              icon={<PlusOutlined />}
-              style={{ width: '100%' }}
-            >
-              Add Variant
-            </Button>
-          </div>
-
-          {variants.map((variant) => (
-            <VariantCard 
-              key={variant.key} 
-              variant={variant} 
-              onChange={handleVariantChange}
-              onRemove={handleRemoveVariant}
-            />
-          ))}
-
-          <Form.Item style={{ marginBottom: 0, textAlign: 'right', marginTop: '24px' }}>
-            <Space>
-              <Button onClick={() => {
-                setVariantsModalVisible(false);
-                setVariantsForm.resetFields();
-                setVariants([]);
-                setCreatedProductId(null);
-              }}>
-                Cancel
-              </Button>
-              <Button 
-                type="primary" 
-                onClick={() => handleVariantsSubmit({ variants })}
-                loading={submitting}
-                disabled={variants.length === 0}
-                style={{ backgroundColor: '#10b981', borderColor: '#10b981' }}
-              >
-                Save Variants
-              </Button>
-            </Space>
-          </Form.Item>
-        </Modal>
       </div>
 
       {/* Mobile Sidebar */}

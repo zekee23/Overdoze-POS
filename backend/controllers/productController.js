@@ -272,5 +272,48 @@ export const getCategID = async (req,res) =>
     }
 }
 
+// Refresh products with rate limiting protection
+export const refreshProducts = async (req, res) => {
+    try {
+        // This endpoint is specifically for refreshing products with rate limiting
+        // It returns the same data as getProductsWithVariants but with Arcjet protection
+        const result = await pool.query(`
+            SELECT 
+                p.*, 
+                c.category_name,
+                json_agg(
+                    json_build_object(
+                        'variant_id', pv.variant_id,
+                        'size_label', pv.size_label,
+                        'price', pv.price,
+                        'is_default', pv.is_default
+                    )
+                    ORDER BY pv.is_default DESC, pv.variant_id
+                ) as variants
+            FROM products p
+            LEFT JOIN category c ON p.category_id = c.category_id
+            LEFT JOIN product_variants pv ON p.product_id = pv.product_id
+            GROUP BY p.product_id, c.category_name
+            ORDER BY p.product_name
+        `);
+        
+        // Transform the result to handle products without variants
+        const products = result.rows.map(row => ({
+            ...row,
+            variants: row.variants[0] ? row.variants : []
+        }));
+        
+        // Add refresh timestamp for cache management
+        res.json({
+            data: products,
+            refreshed_at: new Date().toISOString(),
+            message: 'Products refreshed successfully'
+        });
+    } catch (error) {
+        console.error('Error refreshing products:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 
 

@@ -184,6 +184,7 @@
 
 .products-table-card .ant-card-body {
   padding: 0;
+  background-color: #2d3748 !important;
 }
 
 .table-header {
@@ -221,87 +222,29 @@
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
-/* Table Styles */
-.dark-table {
+/* Table body text - Same as order page */
+.ant-table {
   color: #f3f4f6;
-  background-color: #2d3748;
+  background: #2d3748;
 }
 
-.dark-table .ant-table-thead > tr > th {
-  background-color: #374151 !important;
-  border-bottom: 1px solid #4a5568 !important;
+/* Header text - Same as order page */
+.ant-table-thead > tr > th {
+  background: #1f2937 !important;
+  border-bottom: 1px solid #264a8446;
   color: #f3f4f6 !important;
-  font-weight: 600 !important;
-  font-size: 14px !important;
 }
 
-.dark-table .ant-table-tbody > tr > td {
-  background-color: #2d3748 !important;
-  border-bottom: 1px solid #4a5568 !important;
-  color: #f3f4f6 !important;
-  padding: 12px 16px !important;
-}
-
-.dark-table .ant-table-tbody > tr:hover > td {
-  background-color: #374151 !important;
-}
-
-.dark-table .ant-table-tbody > tr > td.ant-table-cell-row-hover {
-  background-color: #374151 !important;
-}
-
-.dark-table-row {
-  background-color: #2d3748 !important;
-}
-
-.dark-table-row:hover {
-  background-color: #374151 !important;
-}
-
-.dark-table-header {
-  background-color: #374151 !important;
-}
-
-.products-table {
+/* Body cells - Same as order page */
+.ant-table-tbody > tr > td {
+  background: #1f2937;
+  border-bottom: 1px solid #374151;
   color: #f3f4f6;
 }
 
-.products-table .ant-table-thead > tr > th {
-  background-color: #374151;
-  border-bottom: 1px solid #4a5568;
-  color: #f3f4f6;
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.products-table .ant-table-tbody > tr > td {
-  background-color: #2d3748;
-  border-bottom: 1px solid #4a5568;
-  color: #f3f4f6;
-  padding: 12px 16px;
-}
-
-.products-table .ant-table-tbody > tr:hover > td {
-  background-color: #374151;
-}
-
-.products-table .ant-table-tbody > tr > td.ant-table-cell-row-hover {
-  background-color: #374151;
-}
-
-.product-id-cell {
-  color: #f3f4f6;
-  font-weight: 500;
-}
-
-.product-name-cell {
-  color: #f3f4f6;
-  font-weight: 500;
-}
-
-.category-cell {
-  color: #9ca3af;
-  font-size: 14px;
+/* Hover row - Same as order page */
+.ant-table-tbody > tr:hover > td {
+  background: #374151 !important;
 }
 
 .variants-cell {
@@ -324,7 +267,7 @@
 }
 
 .variant-price {
-  color: #f3f4f6;
+  color: #f3f4f6 !important;
   font-size: 12px;
   font-weight: 500;
 }
@@ -382,108 +325,177 @@
 }
 
 .products-table .ant-pagination-item {
-  background-color: #374151;
-  border-color: #4a5568;
+  background-color: #374151 !important;
+  border-color: #4a5563 !important;
 }
 
 .products-table .ant-pagination-item a {
-  color: #f3f4f6;
+  color: #f3f4f6 !important;
 }
 
 .products-table .ant-pagination-item-active {
-  background-color: #3b82f6;
-  border-color: #3b82f6;
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
 }
 
 .products-table .ant-pagination-item-active a {
-  color: #ffffff;
+  color: #224690 !important;
 }
 
 .products-table .ant-pagination-prev,
 .products-table .ant-pagination-next {
-  background-color: #374151;
-  border-color: #4a5568;
+  background-color: #374151 !important;
+  border-color: #4a5563 !important;
 }
 
 .products-table .ant-pagination-prev .anticon,
 .products-table .ant-pagination-next .anticon {
-  color: #f3f4f6;
+  color: #173268 !important;
 }
 
 .products-table .ant-pagination-options {
   color: #9ca3af;
 }
 
-/* Modal Styles */
-.product-modal .ant-modal-header {
-  background-color: #2d3748;
-  border-bottom: 1px solid #4a5568;
+/* Fix pagination button white background issue */
+.ant-pagination-item:not(.ant-pagination-item-active) {
+  background: #374151 !important;
+  border-color: #4a5563 !important;
 }
 
-.product-modal .ant-modal-title {
-  color: #f3f4f6;
-  font-weight: 600;
+.ant-pagination-item:not(.ant-pagination-item-active) a {
+  background: transparent !important;
+  color: #f3f4f6 !important;
 }
 
-.product-modal .ant-modal-content {
-  background-color: #2d3748;
-  border: 1px solid #4a5568;
+.ant-pagination-item:hover:not(.ant-pagination-item-active) {
+  background: #4b5563 !important;
+  border-color: #6b7280 !important;
 }
 
-.product-modal .ant-modal-body {
-  background-color: #2d3748;
-  color: #f3f4f6;
+.ant-pagination-item:hover:not(.ant-pagination-item-active) a {
+  color: #ffffff !important;
 }
 
-.product-modal .ant-form-item-label > label {
-  color: #f3f4f6;
-  font-weight: 500;
+/* Modal Styles - Same as order page */
+.dark-modal-wrapper {
+  background: transparent !important;
 }
 
-.product-modal .ant-input {
-  background-color: #374151;
-  border-color: #4b5563;
-  color: #f3f4f6;
+.dark-modal-wrapper .ant-modal {
+  background: #0f172a !important;
+  border: 1px solid #374151 !important;
 }
 
-.product-modal .ant-input::placeholder {
-  color: #9ca3af;
+.dark-modal-wrapper .ant-modal-content {
+  background: #0f172a !important;
+  border: 1px solid #374151 !important;
 }
 
-.product-modal .ant-select {
-  color: #f3f4f6;
+.dark-modal-wrapper .ant-modal-header {
+  background: #0f172a !important;
+  border-bottom: 1px solid #374151 !important;
 }
 
-.product-modal .ant-select-selector {
-  background-color: #374151;
-  border-color: #4b5563;
-  color: #f3f4f6;
+.dark-modal-wrapper .ant-modal-body {
+  background: #0f172a !important;
+  color: #f3f4f6 !important;
 }
 
-.product-modal .ant-select-selection-placeholder {
-  color: #9ca3af;
+.dark-modal-wrapper .ant-modal-title {
+  color: #f3f4f6 !important;
 }
 
-.product-modal .ant-select-arrow {
-  color: #9ca3af;
+.dark-modal-wrapper .ant-form-item-label > label {
+  color: #f3f4f6 !important;
 }
 
-.product-modal .ant-select-dropdown {
-  background-color: #374151;
-  border: 1px solid #4b5563;
+.dark-modal-wrapper .ant-input {
+  background: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f3f4f6 !important;
 }
 
-.product-modal .ant-select-item {
-  color: #f3f4f6;
+.dark-modal-wrapper .ant-input::placeholder {
+  color: #9ca3af !important;
 }
 
-.product-modal .ant-select-item-option-active {
-  background-color: #4b5563;
+.dark-modal-wrapper .ant-btn {
+  color: #f3f4f6 !important;
 }
 
-.product-modal .ant-select-item-option-selected {
-  background-color: #3b82f6;
+.dark-modal-wrapper .ant-btn-primary {
+  color: #ffffff !important;
+}
+
+.dark-modal-wrapper .ant-modal-close {
+  background: transparent !important;
+  color: #f3f4f6 !important;
+}
+
+.dark-modal-wrapper .ant-modal-close:hover {
+  background: #374151 !important;
+  color: #fff !important;
+}
+
+/* Target all modal wrapper divs */
+.ant-modal-root,
+.ant-modal-container,
+.ant-modal-wrap,
+.ant-modal-centered {
+  background: transparent !important;
+}
+
+/* Force dark background on any potential white areas */
+.ant-modal * {
+  background-color: transparent !important;
+}
+
+.ant-modal-content * {
+  background-color: inherit !important;
+}
+
+/* Ensure modal mask is dark */
+.ant-modal-mask {
+  background: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Select input field (when not clicked) - Same as order page */
+.ant-select-selector {
+  background: #374151 !important;
+  border: 1px solid #4b5563 !important;
+  color: #f3f4f6 !important;
+}
+
+/* Select input field on hover - Same as order page */
+.ant-select:hover .ant-select-selector {
+  border-color: #3b82f6 !important;
+}
+
+/* Select input field when focused/open - Same as order page */
+.ant-select-focused .ant-select-selector {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Dropdown menu - Same as order page */
+.ant-select-dropdown {
+  background: #374151 !important;
+  border: 1px solid #4b5563 !important;
   color: #ffffff;
+}
+
+.ant-select-item {
+  color: #f3f4f6;
+}
+
+.ant-select-item:hover {
+  background: #4b5563;
+}
+
+.ant-select-item-option-selected {
+  background: #3b82f6;
+  color: #fff;
 }
 
 /* Variant Card */
@@ -722,6 +734,94 @@
 .ant-popconfirm .ant-btn-primary:hover {
   background-color: #dc2626;
   border-color: #dc2626;
+}
+
+/* InputNumber Performance and Styling */
+.ant-input-number {
+  background: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f3f4f6 !important;
+  border-radius: 6px;
+}
+
+.ant-input-number:hover {
+  border-color: #3b82f6 !important;
+}
+
+.ant-input-number:focus,
+.ant-input-number-focused {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+}
+
+.ant-input-number-input {
+  background: #374151 !important;
+  color: #f3f4f6 !important;
+}
+
+.ant-input-number-input::placeholder {
+  color: #9ca3af !important;
+}
+
+.ant-input-number-handler-wrap {
+  background: #4b5563 !important;
+  border-left: 1px solid #4b5563 !important;
+}
+
+.ant-input-number-handler {
+  background: #4b5563 !important;
+  color: #f3f4f6 !important;
+}
+
+.ant-input-number-handler:hover {
+  background: #6b7280 !important;
+  color: #ffffff !important;
+}
+
+/* Fix InputNumber white background in modal */
+.ant-modal .ant-input-number {
+  background: #374151 !important;
+  border-color: #4b5563 !important;
+}
+
+.ant-modal .ant-input-number input {
+  background: #374151 !important;
+  color: #f3f4f6 !important;
+}
+
+.ant-modal .ant-input-number-handler-wrap {
+  background: #4b5563 !important;
+}
+
+.ant-modal .ant-input-number-handler {
+  background: #4b5563 !important;
+  color: #f3f4f6 !important;
+}
+
+/* Select dropdown text color fix */
+.ant-select-dropdown .ant-select-item {
+  color: #f3f4f6 !important;
+  background: #374151 !important;
+}
+
+.ant-select-dropdown .ant-select-item-option {
+  color: #f3f4f6 !important;
+  background: #374151 !important;
+}
+
+.ant-select-dropdown .ant-select-item-option:hover {
+  background: #4b5563 !important;
+  color: #ffffff !important;
+}
+
+.ant-select-dropdown .ant-select-item-option-selected {
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+.ant-select-dropdown .ant-select-item-option-active {
+  background: #4b5563 !important;
+  color: #ffffff !important;
 }
 
 /* Tag Colors */
