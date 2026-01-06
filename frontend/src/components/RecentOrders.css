@@ -29,14 +29,14 @@
 
 /* Card dark theme with user-friendly colors */
 .ant-card {
-  background-color: #1f2937 !important;
-  border-color: #374151 !important;
+  background-color: #2d3748 !important;
+  border-color: #4a5568 !important;
   border-radius: 12px !important;
 }
 
 .ant-card-head {
-  background-color: #1f2937 !important;
-  border-bottom: 1px solid #374151 !important;
+  background-color: #2d3748 !important;
+  border-bottom: 1px solid #4a5568 !important;
 }
 
 .ant-card-head-title {
@@ -44,7 +44,7 @@
 }
 
 .ant-card-body {
-  background-color: #1f2937 !important;
+  background-color: #2d3748 !important;
 }
 
 /* Empty state dark theme */

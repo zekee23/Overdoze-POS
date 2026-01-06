@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Card from 'antd/es/card';
 import Row from 'antd/es/row';
@@ -6,18 +6,24 @@ import Col from 'antd/es/col';
 import Spin from 'antd/es/spin';
 import Button from 'antd/es/button';
 import Typography from 'antd/es/typography';
-import Space from 'antd/es/space';
 import Statistic from 'antd/es/statistic';
 import { UserOutlined, LogoutOutlined, DollarOutlined, ShoppingCartOutlined, TeamOutlined, MenuOutlined } from '@ant-design/icons';
 import { dashboardAPI } from '../utils/api';
 import { useRefreshRateLimit } from '../hooks/useRefreshRateLimit';
-import RateLimitedRefreshButton from '../components/RateLimitedRefreshButton';
-import SalesChart from '../components/SalesChart';
-import RecentOrders from '../components/RecentOrders';
-import OverlaySidebar from '../components/OverlaySidebar';
+const SalesChart = lazy(() => import('../components/SalesChart'));
+const RecentOrders = lazy(() => import('../components/RecentOrders'));
+const OverlaySidebar = lazy(() => import('../components/OverlaySidebar'));
+const RateLimitedRefreshButton = lazy(() => import('../components/RateLimitedRefreshButton'));
+
 import './Dashboard.css';
 
 const { Title, Text } = Typography;
+const cardStyle = {
+  backgroundColor: '#2d3748',
+  borderRadius: '12px',
+  marginBottom: '24px',
+   borderColor: '#4a5568', 
+};
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
@@ -34,55 +40,60 @@ const Dashboard = () => {
   const refreshRateLimit = useRefreshRateLimit({ 
     defaultDelay: 3000
   });
+useEffect(() => {
+  const userData = localStorage.getItem('user');
+  const token = localStorage.getItem('token');
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const userData = localStorage.getItem('user');
-        const token = localStorage.getItem('token');
-        
-        if (!userData || !token) {
-          navigate('/login');
-          return;
-        }
+  if (!userData || !token) {
+    navigate('/login');
+    return;
+  }
 
-        const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
+  const parsedUser = JSON.parse(userData);
+  setUser(parsedUser);
 
-        // If user is not admin, redirect to appropriate dashboard
-        if (parsedUser.u_role !== 'admin') {
-          navigate(parsedUser.u_role === 'cashier' ? '/pos' : '/');
-          return;
-        }
+  if (parsedUser.u_role !== 'admin') {
+    navigate(parsedUser.u_role === 'cashier' ? '/pos' : '/');
+    return;
+  }
 
-        // Fetch dashboard data
-        await fetchDashboardData();
-      } catch (error) {
-        navigate('/login');
-      } finally {
-        setAuthLoading(false);
-      }
-    };
+  setAuthLoading(false);
+}, [navigate]);
 
-    checkAuth();
-  }, [navigate]);
+useEffect(() => {
+  if (!authLoading) {
+    fetchDashboardData();
+  }
+}, [authLoading]);
+
+
+const { totalOrders, totalSales } = useMemo(() => {
+  const orders = dashboardData.KPIToday.reduce(
+    (sum, item) => sum + Number(item.total_orders || 0),
+    0
+  );
+  const sales = dashboardData.KPIToday.reduce(
+    (sum, item) => sum + Number(item.total_sales || 0),
+    0
+  );
+
+  return { totalOrders: orders, totalSales: sales };
+}, [dashboardData.KPIToday]);
+
+
 
   const fetchDashboardData = async () => {
-    try {
-      setDataLoading(true);
-      const response = await dashboardAPI.getHomeData();
-      setDashboardData(response.data);
-    } catch (error) {
-      console.error('Failed to fetch dashboard data:', error);
-      // Set default data to prevent empty states
-      setDashboardData({
-        KPIToday: [],
-        Hourly_Orders: []
-      });
-    } finally {
-      setDataLoading(false);
-    }
-  };
+  try {
+    setDataLoading(true);
+    const response = await dashboardAPI.getHomeData();
+    setDashboardData(response.data);
+  } catch (error) {
+    setDashboardData({ KPIToday: [], Hourly_Orders: [] });
+  } finally {
+    setDataLoading(false);
+  }
+};
+
 
   // Refresh function for the refresh button
   const handleRefresh = async () => {
@@ -128,8 +139,7 @@ const Dashboard = () => {
   }
 
   // Calculate totals
-  const totalOrders = dashboardData.KPIToday.reduce((sum, item) => sum + parseInt(item.total_orders || 0), 0);
-  const totalSales = dashboardData.KPIToday.reduce((sum, item) => sum + parseFloat(item.total_sales || 0), 0);
+ 
 
   return (
     <div className="dashboard-dark" style={{
@@ -219,8 +229,11 @@ const Dashboard = () => {
         margin: '0 auto',
         padding: '24px'
       }}>
+
+        
         {/* Welcome Section */}
-        <Card style={{ marginBottom: '24px', backgroundColor: '#2d3748', borderColor: '#4a5568', borderRadius: '12px' }}>
+        <Card style={cardStyle}>
+
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <Title level={2} style={{ margin: 0, color: '#f3f4f6' }}>
@@ -334,20 +347,34 @@ const Dashboard = () => {
                 </div>
               </Card>
             ) : (
-              <Card title="Today's Orders by Hour" style={{ height: '500px', backgroundColor: '#2d3748', borderColor: '#4a5568', borderRadius: '12px' }}>
-                <SalesChart data={dashboardData.Hourly_Orders} />
-              </Card>
+              
+           <Suspense fallback={<Spin />}>
+  <SalesChart data={dashboardData.Hourly_Orders} />
+</Suspense>
+
+
             )}
           </Col>
+          
           <Col xs={24} lg={12}>
-            <RecentOrders />
+             <Suspense fallback={<Spin />}>
+    <RecentOrders />
+  </Suspense>
+
           </Col>
         </Row>
 
       </div>
       
       {/* Overlay Sidebar */}
-      <OverlaySidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} user={user} />
+    <Suspense fallback={null}>
+  <OverlaySidebar
+    isOpen={sidebarOpen}
+    onClose={() => setSidebarOpen(false)}
+    user={user}
+  />
+</Suspense>
+
     </div>
   );
 };

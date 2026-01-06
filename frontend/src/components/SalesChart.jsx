@@ -1,4 +1,5 @@
 import React, { useRef, useMemo } from 'react';
+import { Card, Spin, Typography } from 'antd';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,6 +12,8 @@ import {
   Filler
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+
+const { Title: AntTitle } = Typography;
 
 // Register ChartJS components
 ChartJS.register(
@@ -37,17 +40,17 @@ const SalesChart = ({ data }) => {
           const hourData = data.find(item => parseInt(item.hour) === hour);
           return hourData ? parseInt(hourData.order_count) : 0;
         }),
-        borderColor: 'rgb(139, 92, 246)',
-        backgroundColor: 'rgba(139, 92, 246, 0.2)',
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59, 130, 246, 0.2)',
         borderWidth: 3,
         tension: 0.4,
         fill: true,
         pointRadius: 0,
         pointHoverRadius: 8,
-        pointBackgroundColor: 'rgb(139, 92, 246)',
+        pointBackgroundColor: '#3b82f6',
         pointBorderColor: '#1f2937',
         pointBorderWidth: 2,
-        pointHoverBackgroundColor: 'rgb(139, 92, 246)',
+        pointHoverBackgroundColor: '#3b82f6',
         pointHoverBorderColor: '#1f2937',
         pointHoverBorderWidth: 3,
       },
@@ -125,14 +128,24 @@ const SalesChart = ({ data }) => {
   };
 
   return (
-    <div style={{ 
-      position: 'relative', 
-      height: '440px', 
-      width: '100%',
-      padding: '10px 0'
-    }}>
-      <Line ref={chartRef} data={chartData} options={options} />
-    </div>
+    <Card 
+      title="Today's Orders by Hour" 
+      style={{ 
+        backgroundColor: '#2d3748',
+        borderColor: '#4a5568',
+        borderRadius: '12px',
+        height: '300px'  // Changed from 500px
+      }}
+    >
+      <div style={{ 
+        position: 'relative', 
+        height: '440px', 
+        width: '100%',
+        padding: '10px 0'
+      }}>
+        <Line ref={chartRef} data={chartData} options={options} />
+      </div>
+    </Card>
   );
 };
 

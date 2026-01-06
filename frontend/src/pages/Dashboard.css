@@ -7,6 +7,12 @@
   border-radius: 12px !important;
 }
 
+.panel {
+  height: 500px;
+  overflow: hidden;
+}
+
+
 .dashboard-dark .ant-card-head {
   background-color: #1f2937 !important;
   border-bottom: 1px solid #374151 !important;
