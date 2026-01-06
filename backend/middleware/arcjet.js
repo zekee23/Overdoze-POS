@@ -109,7 +109,7 @@ const ajProductsRefresh = arcjetKey ? arcjet({
       mode: "LIVE",
       refillRate: 10, // 10 requests per minute (reasonable for production)
       interval: 60, // 1 minute in seconds
-      capacity: 20, // 20 burst capacity (allows occasional bursts)
+      capacity: 10, // 20 burst capacity (allows occasional bursts)
     }),
   ],
 }) : null;

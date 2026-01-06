@@ -35,6 +35,28 @@
   color: #f3f4f6 !important;
 }
 
+
+.ant-statistic {
+  min-height: 110px;
+}
+
+.ant-statistic-content {
+  min-height: 48px;
+}
+
+.ant-statistic-title {
+  min-height: 22px;
+}
+
+.ant-row {
+  align-items: stretch;
+}
+
+.ant-col > .ant-card {
+  height: 100%;
+}
+
+
 /* Button dark theme with user-friendly colors */
 .dashboard-dark .ant-btn-primary {
   background-color: #3b82f6 !important;

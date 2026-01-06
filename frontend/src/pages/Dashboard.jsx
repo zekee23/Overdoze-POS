@@ -348,20 +348,62 @@ const { totalOrders, totalSales } = useMemo(() => {
               </Card>
             ) : (
               
-           <Suspense fallback={<Spin />}>
+           <Suspense
+  fallback={
+    <Card
+      title="Today's Orders by Hour"
+      style={{
+        height: '500px',
+        backgroundColor: '#2d3748',
+        borderColor: '#4a5568',
+        borderRadius: '12px'
+      }}
+    >
+      <div style={{
+        height: '400px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}>
+        <Spin size="large" />
+      </div>
+    </Card>
+  }
+>
   <SalesChart data={dashboardData.Hourly_Orders} />
 </Suspense>
+
 
 
             )}
           </Col>
           
           <Col xs={24} lg={12}>
-             <Suspense fallback={<Spin />}>
-    <RecentOrders />
-  </Suspense>
+  <Card
+    style={{
+      minHeight: '500px',
+      backgroundColor: '#2d3748',
+      borderColor: '#4a5568',
+      borderRadius: '12px'
+    }}
+  >
+    <Suspense
+      fallback={
+        <div style={{
+          height: '440px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}>
+          <Spin size="large" />
+        </div>
+      }
+    >
+      <RecentOrders />
+    </Suspense>
+  </Card>
+</Col>
 
-          </Col>
         </Row>
 
       </div>
