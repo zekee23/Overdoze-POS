@@ -360,6 +360,12 @@ const StockPage = () => {
         {/* Out of Stock Items Table */}
         <Card 
           className="stock-table-card"
+          style={{ 
+            backgroundColor: '#2d3748', 
+            borderColor: '#4a5568', 
+            borderRadius: '12px',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+          }}
           title={
             <Space>
               <ExclamationCircleOutlined style={{ color: '#f87171', fontSize: '20px' }} />
@@ -396,12 +402,14 @@ const StockPage = () => {
         </Card>
 
         <Modal
-          className="stock-modal"
+          className="dashboard-modal"
           title={
-            <Space>
-              <ExclamationCircleOutlined style={{ color: '#3b82f6' }} />
-              <span>Confirm Restock</span>
-            </Space>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <ExclamationCircleOutlined style={{ color: '#3b82f6', fontSize: '18px' }} />
+              <span style={{ color: '#f3f4f6', fontSize: '16px', fontWeight: 'bold' }}>
+                Confirm Restock
+              </span>
+            </div>
           }
           open={restockModalVisible}
           onOk={confirmRestock}
@@ -409,7 +417,33 @@ const StockPage = () => {
           confirmLoading={restocking}
           okText="Yes, Restock"
           cancelText="Cancel"
-          okButtonProps={{ style: { backgroundColor: '#3b82f6', borderColor: '#3b82f6' } }}
+          styles={{
+            body: { 
+              backgroundColor: '#0f172a', 
+              color: '#f3f4f6', 
+              padding: '16px',
+              borderRadius: '8px'
+            },
+            header: { 
+              backgroundColor: '#0f172a', 
+              borderBottom: '1px solid #374151',
+              borderRadius: '8px 8px 0 0',
+              padding: '16px 20px'
+            },
+            content: { 
+              backgroundColor: '#0f172a', 
+              color: '#f3f4f6',
+              borderRadius: '8px',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              border: '1px solid #374151'
+            },
+            mask: { 
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              backdropFilter: 'blur(4px)'
+            }
+          }}
+          wrapClassName="dark-modal-wrapper"
+          zIndex={1000}
         >
           <div style={{ padding: '8px 0' }}>
             <p style={{ marginBottom: '8px' }}>

@@ -90,14 +90,14 @@
 
 /* Table Card */
 .stock-table-card {
-  background: rgba(45, 55, 72, 0.95) !important;
+  background: #2d3748 !important;
   border: 1px solid #4a5568 !important;
   border-radius: 12px !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
 }
 
 .stock-table-card .ant-card-head {
-  background: rgba(31, 41, 55, 0.95) !important;
+  background: #2d3748 !important;
   border-bottom: 1px solid #4a5568 !important;
 }
 
@@ -109,7 +109,7 @@
 
 .stock-table-card .ant-card-body {
   padding: 0 !important;
-  background: transparent !important;
+  background: #2d3748 !important;
 }
 
 /* Table Styles */
@@ -130,7 +130,7 @@
 }
 
 .stock-table .ant-table-thead > tr > th {
-  background: rgba(31, 41, 55, 0.95) !important;
+  background: #1f2937 !important;
   border-bottom: 1px solid #4a5568 !important;
   color: #f3f4f6 !important;
   font-weight: 600;
@@ -138,14 +138,14 @@
 }
 
 .stock-table .ant-table-tbody > tr > td {
-  background: rgba(45, 55, 72, 0.95) !important;
+  background: #2d3748 !important;
   border-bottom: 1px solid #374151 !important;
   color: #f3f4f6 !important;
   padding: 16px;
 }
 
 .stock-table .ant-table-tbody > tr:hover > td {
-  background: rgba(55, 65, 81, 0.95) !important;
+  background: #374151 !important;
 }
 
 .stock-table .ant-table-tbody > tr:last-child > td {
@@ -157,7 +157,7 @@
 }
 
 .stock-table .ant-table-header {
-  background: rgba(31, 41, 55, 0.95) !important;
+  background: #1f2937 !important;
 }
 
 .stock-table .ant-table-body {
@@ -468,13 +468,13 @@
 }
 
 .dashboard-dark .ant-table-tbody > tr > td {
-  background: rgba(45, 55, 72, 0.95) !important;
+  background: #2d3748 !important;
   border-bottom: 1px solid #374151 !important;
   color: #f3f4f6 !important;
 }
 
 .dashboard-dark .ant-table-thead > tr > th {
-  background: rgba(31, 41, 55, 0.95) !important;
+  background: #1f2937 !important;
   border-bottom: 1px solid #4a5568 !important;
   color: #f3f4f6 !important;
 }

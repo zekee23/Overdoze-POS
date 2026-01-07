@@ -31,6 +31,8 @@ import {
 import OverlaySidebar from '../../components/OverlaySidebar';
 import api from '../../utils/api';
 import '../Dashboard.css';
+import './userpage.css';
+import Toast from '../../components/common/Toast';
 
 const { Title, Text } = Typography;
 
@@ -44,16 +46,21 @@ const UserPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [form] = Form.useForm();
+    const [toast, setToast] = useState({ open: false, message: '', severity: 'success' });
   const navigate = useNavigate();
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
+      console.log('Fetching users...');
       const response = await api.get('/dashboard/users');
+      console.log('Users response:', response.data);
       const sortedUsers = (response.data || []).sort((a, b) => a.uid - b.uid);
       setUsers(sortedUsers);
+      message.success(`Successfully loaded ${sortedUsers.length} users`);
     } catch (error) {
-      message.error('Failed to load users');
+      console.error('Fetch users error:', error);
+      message.error(`Failed to load users: ${error.response?.data?.message || error.message}`);
     } finally {
       setLoading(false);
     }
@@ -73,6 +80,7 @@ const UserPage = () => {
   const handleEdit = (user) => {
     setEditingUser(user);
     setModalVisible(true);
+
     form.setFieldsValue({
       username: user.username,
       full_name: user.full_name
@@ -84,6 +92,15 @@ const UserPage = () => {
       await api.delete(`/dashboard/users/${userId}`);
       message.success('User deleted successfully!');
       fetchUsers();
+setToast({
+  open: true,
+  message: 'User Deleted successfully!',
+  severity: 'success'
+});
+      // Hide toast after 2.5 seconds
+      setTimeout(() => {
+        setToast({ open: false, message: '', severity: 'success' });
+      }, 2500);
     } catch (error) {
       message.error('Failed to delete user');
     }
@@ -98,6 +115,11 @@ const UserPage = () => {
         setModalVisible(false);
         form.resetFields();
         setEditingUser(null);
+        setToast({
+  open: true,
+  message: 'User Updated successfully!',
+  severity: 'success'
+});
         fetchUsers();
       } else {
         // For creating new users, you might need to add a create endpoint
@@ -222,7 +244,7 @@ const UserPage = () => {
 
   if (authLoading) {
     return (
-      <div className="dashboard-dark" style={{
+      <div className="user-page" style={{
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
@@ -242,13 +264,13 @@ const UserPage = () => {
   const cashierUsers = users.filter(user => user.u_role === 'cashier').length;
 
   return (
-    <div className="dashboard-dark" style={{
+    <div className="user-page" style={{
       minHeight: '100vh',
       backgroundColor: '#0f172a',
       padding: '0'
     }}>
       {/* Header */}
-      <div style={{
+      <div className="user-header" style={{
         backgroundColor: '#1f2937',
         boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
         padding: '0 24px',
@@ -268,6 +290,7 @@ const UserPage = () => {
               type="text"
               icon={<MenuOutlined />}
               onClick={() => setSidebarOpen(true)}
+              className="user-hamburger-menu-btn"
               style={{
                 color: '#3b82f6',
                 border: 'none',
@@ -278,7 +301,6 @@ const UserPage = () => {
                 backgroundColor: 'transparent',
                 transition: 'all 0.3s ease'
               }}
-              className="hamburger-menu-btn"
             />
             <Title level={3} style={{ margin: 0, color: '#3b82f6' }}>
               User Management
@@ -286,14 +308,7 @@ const UserPage = () => {
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{
-              backgroundColor: '#374151',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              border: '1px solid #4b5563'
-            }}>
+            <div className="user-info-display">
               <UserOutlined style={{ marginRight: '8px', color: '#3b82f6' }} />
               <Text strong style={{ color: '#f3f4f6' }}>
                 {user?.full_name || user?.username || 'Admin'}
@@ -304,6 +319,7 @@ const UserPage = () => {
               type="primary" 
               icon={<LogoutOutlined />}
               onClick={handleLogout}
+              className="user-logout-btn"
               style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
             >
               Logout
@@ -319,9 +335,9 @@ const UserPage = () => {
         padding: '24px'
       }}>
         {/* Welcome Section */}
-        <Card style={{ 
+        <Card className="user-welcome" style={{ 
           marginBottom: '24px', 
-          backgroundColor: '#2d3748', 
+          backgroundColor: 'rgba(45, 55, 72, 0.95)', 
           borderColor: '#4a5568', 
           borderRadius: '12px',
           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
@@ -339,8 +355,11 @@ const UserPage = () => {
         </Card>
 
 
+       
+
         {/* Users Table */}
         <Card 
+          className="user-table-card"
           style={{ 
             backgroundColor: '#2d3748', 
             borderColor: '#4a5568', 
@@ -351,13 +370,12 @@ const UserPage = () => {
             <Space>
               <TeamOutlined style={{ color: '#3b82f6', fontSize: '20px' }} />
               <Text strong style={{ color: '#f3f4f6', fontSize: '18px' }}>
-                Cashier List
+                Users List
               </Text>
             </Space>
           }
           extra={
             <Space>
-              
               <Button
                 icon={<ReloadOutlined />}
                 onClick={fetchUsers}
@@ -366,10 +384,12 @@ const UserPage = () => {
               >
                 Refresh
               </Button>
+              
             </Space>
           }
         >
           <Table
+            className="user-table"
             columns={columns}
             dataSource={users}
             rowKey="uid"
@@ -389,11 +409,14 @@ const UserPage = () => {
 
         {/* Create/Edit Modal */}
         <Modal
+          className="dashboard-modal"
           title={
-            <Space>
-              {editingUser ? <EditOutlined style={{ color: '#3b82f6' }} /> : <PlusOutlined style={{ color: '#10b981' }} />}
-              <span>{editingUser ? 'Edit User' : 'Create New User'}</span>
-            </Space>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {editingUser ? <EditOutlined style={{ color: '#3b82f6', fontSize: '18px' }} /> : <PlusOutlined style={{ color: '#10b981', fontSize: '18px' }} />}
+              <span style={{ color: '#f3f4f6', fontSize: '16px', fontWeight: 'bold' }}>
+                {editingUser ? 'Edit User' : 'Create New User'}
+              </span>
+            </div>
           }
           open={modalVisible}
           onCancel={() => {
@@ -402,7 +425,33 @@ const UserPage = () => {
             setEditingUser(null);
           }}
           footer={null}
-          width={600}
+          styles={{
+            body: { 
+              backgroundColor: '#0f172a', 
+              color: '#f3f4f6', 
+              padding: '16px',
+              borderRadius: '8px'
+            },
+            header: { 
+              backgroundColor: '#0f172a', 
+              borderBottom: '1px solid #374151',
+              borderRadius: '8px 8px 0 0',
+              padding: '16px 20px'
+            },
+            content: { 
+              backgroundColor: '#0f172a', 
+              color: '#f3f4f6',
+              borderRadius: '8px',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              border: '1px solid #374151'
+            },
+            mask: { 
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              backdropFilter: 'blur(4px)'
+            }
+          }}
+          wrapClassName="dark-modal-wrapper"
+          zIndex={1000}
         >
           <Form
             form={form}
@@ -414,7 +463,7 @@ const UserPage = () => {
               label="Username"
               rules={[{ required: true, message: 'Please enter username' }]}
             >
-              <Input placeholder="Enter username" style={{ backgroundColor: '#ffffff', borderColor: '#4b5563', color: '#333', borderRadius: '6px' }} />
+              <Input placeholder="Enter username" style={{ backgroundColor: '#374151', borderColor: '#4b5563', color: '#f3f4f6', borderRadius: '6px' }} />
             </Form.Item>
 
             <Form.Item
@@ -422,7 +471,7 @@ const UserPage = () => {
               label="Full Name"
               rules={[{ required: true, message: 'Please enter full name' }]}
             >
-              <Input placeholder="Enter full name" style={{ backgroundColor: '#ffffff', borderColor: '#4b5563', color: '#333', borderRadius: '6px' }} />
+              <Input placeholder="Enter full name" style={{ backgroundColor: '#374151', borderColor: '#4b5563', color: '#f3f4f6', borderRadius: '6px' }} />
             </Form.Item>
 
             <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
@@ -431,6 +480,8 @@ const UserPage = () => {
                   setModalVisible(false);
                   form.resetFields();
                   setEditingUser(null);
+                  
+                  
                 }}>
                   Cancel
                 </Button>
@@ -454,20 +505,17 @@ const UserPage = () => {
         onClose={() => setSidebarOpen(false)}
         user={user}
       />
+
+      <Toast
+  open={toast.open}
+  message={toast.message}
+  severity={toast.severity}
+  onClose={() => setToast({ ...toast, open: false })}
+/>
       {sidebarOpen && (
         <div 
-          className="mobile-sidebar-overlay"
+          className="user-mobile-sidebar-overlay"
           onClick={() => setSidebarOpen(false)}
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            zIndex: 999,
-            display: window.innerWidth <= 768 ? 'block' : 'none'
-          }}
         />
       )}
     </div>
