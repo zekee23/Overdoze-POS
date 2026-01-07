@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { Card, Table, Button, Space, Typography, Tag, message, Modal, Row, Col, Statistic } from 'antd';
 import { 
@@ -14,6 +14,8 @@ import OverlaySidebar from '../../components/OverlaySidebar';
 import api from '../../utils/api';
 import '../Dashboard.css';
 import './stockpage.css';
+import './dashboard-modals.css';
+import Toast from '../../components/common/Toast';
 
 const { Title, Text } = Typography;
 
@@ -25,6 +27,7 @@ const StockPage = () => {
   const [restockModalVisible, setRestockModalVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [restocking, setRestocking] = useState(false);
+  const [toast, setToast] = useState({ open: false, message: '', severity: 'success' });
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -53,11 +56,18 @@ const StockPage = () => {
     try {
       setRestocking(true);
       await api.put(`/dashboard/restock/${selectedProduct.product_id}`);
-      message.success('Product restocked successfully!');
+      setToast({ open: true, message: 'Product restocked successfully!', severity: 'success' });
       setRestockModalVisible(false);
       fetchOutOfStockItems();
+      // Hide toast after 2.5 seconds
+      setTimeout(() => {
+        setToast({ open: false, message: '', severity: 'success' });
+      }, 2500);
     } catch (error) {
-      message.error('Failed to restock product');
+      setToast({ open: true, message: 'Failed to restock product', severity: 'error' });
+      setTimeout(() => {
+        setToast({ open: false, message: '', severity: 'success' });
+      }, 2500);
     } finally {
       setRestocking(false);
     }
@@ -349,12 +359,7 @@ const StockPage = () => {
 
         {/* Out of Stock Items Table */}
         <Card 
-          style={{ 
-            backgroundColor: '#2d3748', 
-            borderColor: '#4a5568', 
-            borderRadius: '12px',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-          }}
+          className="stock-table-card"
           title={
             <Space>
               <ExclamationCircleOutlined style={{ color: '#f87171', fontSize: '20px' }} />
@@ -386,11 +391,12 @@ const StockPage = () => {
               style: { color: '#9ca3af' }
             }}
             scroll={{ x: 'max-content' }}
-            style={{ color: '#f3f4f6' }}
+            className="stock-table"
           />
         </Card>
 
         <Modal
+          className="stock-modal"
           title={
             <Space>
               <ExclamationCircleOutlined style={{ color: '#3b82f6' }} />
@@ -407,7 +413,7 @@ const StockPage = () => {
         >
           <div style={{ padding: '8px 0' }}>
             <p style={{ marginBottom: '8px' }}>
-              Are you sure you want to restock <Text strong>{selectedProduct?.product_name}</Text>?
+              Are you sure you want to restock <Text strong style={{ color: '#3b82f6' }}>{selectedProduct?.product_name}</Text>?
             </p>
             <p style={{ color: '#9ca3af', margin: 0 }}>
               This will mark the product as active in your inventory.
@@ -415,6 +421,14 @@ const StockPage = () => {
           </div>
         </Modal>
       </div>
+
+      {/* Custom Toast */}
+      <Toast 
+        open={toast.open}
+        message={toast.message}
+        severity={toast.severity}
+        onClose={() => setToast({ open: false, message: '', severity: 'success' })}
+      />
 
       {/* Mobile Sidebar */}
       <OverlaySidebar 

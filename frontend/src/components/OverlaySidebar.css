@@ -22,8 +22,8 @@
 .sidebar-container {
   position: fixed;
   top: 0;
-  left: -320px;
-  width: '320px';
+  left: -350px;
+  width: '300px';
   height: 100vh;
   background: #ffffff;
   box-shadow: 2px 0 16px rgba(0, 0, 0, 0.15);

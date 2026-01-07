@@ -545,7 +545,7 @@ const formatToStandardTime = (hour) => {
       <Modal
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px',}}>
-            <ShoppingOutlined style={{ color: '#3b82f6', fontSize: '18px' }} />
+            <ShoppingOutlined style={{ fontSize: '18px' }} />
             <span style={{ color: '#f3f4f6', fontSize: '16px', fontWeight: 'bold' }}>
               Order #{selectedOrder?.order_id}
             </span>
@@ -589,7 +589,7 @@ const formatToStandardTime = (hour) => {
           <div style={{ minHeight: '200px' }}>
             {/* Order Header - Compact */}
             <div style={{
-              background: 'linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)',
+              background: 'linear-gradient(135deg, #5459607c 0%, #4d4e5078 50%, #4d4f5575 100%)',
               borderRadius: '8px',
               padding: '16px',
               marginBottom: '16px',

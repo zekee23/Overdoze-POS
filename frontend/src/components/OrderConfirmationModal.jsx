@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import "./OrderConfirmationModal.css";
 
 const OrderConfirmationModal = ({
@@ -16,6 +16,15 @@ const OrderConfirmationModal = ({
   
   // Debouncing refs
   const debounceTimeoutRef = useRef(null);
+
+  // Reset function to clear cash input
+  const resetCashInput = useCallback(() => {
+    setCashInput("");
+    setDisplayCashInput("");
+    setChange(0);
+    setLastQuickPress(null);
+    setLastQuickTime(0);
+  }, []);
 
   // Debounced cash change handler
   const debouncedCashChange = useCallback((value) => {
@@ -92,11 +101,19 @@ const OrderConfirmationModal = ({
     const cashAmount = parseFloat(cashInput || displayCashInput) || 0;
     if (cashAmount >= cartTotal) {
       onConfirm({ cashAmount, change });
+      resetCashInput(); // Clear cash input after order confirmation
     }
   };
 
   const cashAmount = parseFloat(cashInput || displayCashInput) || 0;
   const canConfirm = cashAmount >= cartTotal;
+
+  // Reset cash input when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      resetCashInput();
+    }
+  }, [isOpen, resetCashInput]);
 
   // Cleanup debounce timeout on unmount
   useEffect(() => {

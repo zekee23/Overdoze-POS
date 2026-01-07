@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo, memo } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import { useNavigate } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import ProductModal from '../components/ProductModal';
@@ -351,6 +351,7 @@ const confirmOrder = async () => {
     setCart([]);
     setShowOrderConfirmationModal(false);
     alert('Order completed successfully');
+    
 
   } catch (err) {
     console.error('Checkout error:', err);
@@ -390,6 +391,8 @@ const cancelOrder = () => {
   const handleLogout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    localStorage.clear('pos_data_cache');
+    localStorage.clear('pos_data_cache_timestamp');
     navigate('/login');
   };
 

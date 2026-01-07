@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoadingSpinner from './components/common/LoadingSpinner';
 import { analyzeBundleSize } from './utils/bundleAnalyzer';
@@ -15,7 +15,7 @@ const ProductPage = lazy(() => import('./pages/Dashboard/productpage.jsx'));
 const UserPage = lazy(() => import('./pages/Dashboard/userpage.jsx'));
 
 function App() {
-  React.useEffect(() => {
+  useEffect(() => {
     // Analyze bundle size in development
     if (import.meta.env.DEV) {
       setTimeout(analyzeBundleSize, 2000);

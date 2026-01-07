@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback} from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Card, 
@@ -34,7 +34,9 @@ import OverlaySidebar from '../../components/OverlaySidebar';
 import api from '../../utils/api';
 import '../Dashboard.css';
 import './productpage.css';
+import './dashboard-modals.css';
 import VariantsModal from '../../components/variants/VariantsModal';
+import Toast from '../../components/common/Toast';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -54,6 +56,7 @@ const ProductPage = () => {
   const [variantsModalVisible, setVariantsModalVisible] = useState(false);
   const [createdProductId, setCreatedProductId] = useState(null);
   const [variants, setVariants] = useState([]);
+  const [toast, setToast] = useState({ open: false, message: '', severity: 'success' });
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
@@ -219,11 +222,18 @@ const ProductPage = () => {
   const handleDelete = async (productId) => {
     try {
       await api.delete(`/dashboard/products/${productId}`);
-      message.success('Product deleted successfully!');
+      setToast({ open: true, message: 'Product deleted successfully!', severity: 'success' });
       localStorage.removeItem(CACHE_KEY); // Clear cache after deletion
       fetchProducts();
+      // Hide toast after 2.5 seconds
+      setTimeout(() => {
+        setToast({ open: false, message: '', severity: 'success' });
+      }, 2500);
     } catch (error) {
-      message.error('Failed to delete product');
+      setToast({ open: true, message: 'Failed to delete product', severity: 'error' });
+      setTimeout(() => {
+        setToast({ open: false, message: '', severity: 'success' });
+      }, 2500);
     }
   };
 
@@ -232,22 +242,35 @@ const ProductPage = () => {
       setSubmitting(true);
       if (editingProduct) {
         await api.put(`/dashboard/update-product/${editingProduct.product_id}`, values);
-        message.success('Product updated successfully!');
+        setToast({ open: true, message: 'Product updated successfully!', severity: 'success' });
         setModalVisible(false);
         form.resetFields();
         setEditingProduct(null);
         localStorage.removeItem(CACHE_KEY); // Clear cache after update
         fetchProducts();
+        // Hide toast after 2.5 seconds
+        setTimeout(() => {
+          setToast({ open: false, message: '', severity: 'success' });
+        }, 2500);
       } else {
         // Create basic product first
+        console.log('Creating product with values:', values);
         const response = await api.post('/dashboard/create-product', values);
-        message.success('Product created successfully!');
+        console.log('Product creation response:', response.data);
+        
+        // Show custom toast
+        setToast({ open: true, message: 'Product created successfully!', severity: 'success' });
         
         // Store the created product ID and show variants modal
         setCreatedProductId(response.data.product_id);
         setModalVisible(false);
         form.resetFields();
-        setVariantsModalVisible(true);
+        
+        // Delay before showing variants modal
+        setTimeout(() => {
+          setVariantsModalVisible(true);
+          setToast({ open: false, message: '', severity: 'success' });
+        }, 1500);
       }
     } catch (error) {
       message.error(`Failed to ${editingProduct ? 'update' : 'create'} product`);
@@ -262,7 +285,10 @@ const ProductPage = () => {
       
       // Validate variants before submission
       if (variants.length === 0) {
-        message.error('Please add at least one variant');
+        setToast({ open: true, message: 'Please add at least one variant', severity: 'error' });
+        setTimeout(() => {
+          setToast({ open: false, message: '', severity: 'success' });
+        }, 2500);
         return;
       }
       
@@ -273,11 +299,14 @@ const ProductPage = () => {
 });
 
       if (invalidVariants.length > 0) {
-        message.error('All variants must have a size and valid price');
+        setToast({ open: true, message: 'All variants must have a size and valid price', severity: 'error' });
+        setTimeout(() => {
+          setToast({ open: false, message: '', severity: 'success' });
+        }, 2500);
         return;
       }
       
-      // Create variants for the product
+      // Create variants for product
       for (const variant of variants) {
         await api.post(`/dashboard/products/${createdProductId}/variants`, {
           size_label: variant.size_label,
@@ -287,12 +316,16 @@ const ProductPage = () => {
       }
 
       
-      message.success('Variants added successfully!');
+      setToast({ open: true, message: 'Variants added successfully!', severity: 'success' });
       setVariantsModalVisible(false);
       setVariants([]);
       setCreatedProductId(null);
       localStorage.removeItem(CACHE_KEY); // Clear cache after adding variants
       fetchProducts();
+      // Hide toast after 2.5 seconds
+      setTimeout(() => {
+        setToast({ open: false, message: '', severity: 'success' });
+      }, 2500);
     } catch (error) {
       console.error('Variants submission error:', error);
       message.error('Failed to add variants: ' + (error.response?.data?.message || error.message));
@@ -738,6 +771,7 @@ const ProductPage = () => {
 
         {/* Create/Edit Modal */}
         <Modal
+          className="dashboard-modal"
           title={
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {editingProduct ? <EditOutlined style={{ color: '#3b82f6', fontSize: '18px' }} /> : <PlusOutlined style={{ color: '#10b981', fontSize: '18px' }} />}
@@ -847,6 +881,14 @@ const ProductPage = () => {
 />
 
       </div>
+
+      {/* Custom Toast */}
+      <Toast 
+        open={toast.open}
+        message={toast.message}
+        severity={toast.severity}
+        onClose={() => setToast({ open: false, message: '', severity: 'success' })}
+      />
 
       {/* Mobile Sidebar */}
       <OverlaySidebar 

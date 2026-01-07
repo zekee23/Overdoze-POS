@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, Table, Typography, Tag, Space, Spin, Empty } from 'antd';
 import { ClockCircleOutlined, UserOutlined, DollarOutlined } from '@ant-design/icons';
 import { orderAPI } from '../utils/api';

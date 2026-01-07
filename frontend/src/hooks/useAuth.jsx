@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, createContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authUtils } from '../utils/auth';
 
 // Auth context
-const AuthContext = React.createContext(null);
+const AuthContext = createContext(null);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);

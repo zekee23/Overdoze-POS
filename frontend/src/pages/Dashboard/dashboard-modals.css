@@ -1,0 +1,251 @@
+/* Dashboard Modals - Specific styling to avoid affecting other components */
+
+/* Base modal styling for all dashboard modals */
+.dashboard-modal .ant-modal,
+.dashboard-modal .ant-modal-content,
+.dark-modal-wrapper .ant-modal,
+.dark-modal-wrapper .ant-modal-content {
+  background: rgba(45, 55, 72, 0.95) !important;
+  border: 1px solid #4a5568 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.dashboard-modal .ant-modal-header,
+.dark-modal-wrapper .ant-modal-header {
+  background: rgba(31, 41, 55, 0.95) !important;
+  border-bottom: 1px solid #4a5568 !important;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+.dashboard-modal .ant-modal-title,
+.dark-modal-wrapper .ant-modal-title {
+  color: #f3f4f6 !important;
+  font-weight: 600 !important;
+}
+
+.dashboard-modal .ant-modal-body,
+.dark-modal-wrapper .ant-modal-body {
+  background: rgba(45, 55, 72, 0.95) !important;
+  color: #f3f4f6 !important;
+  padding: 24px !important;
+}
+
+.dashboard-modal .ant-modal-footer,
+.dark-modal-wrapper .ant-modal-footer {
+  background: rgba(31, 41, 55, 0.95) !important;
+  border-top: 1px solid #4a5568 !important;
+  border-radius: 0 0 8px 8px !important;
+}
+
+.dashboard-modal .ant-modal-close,
+.dark-modal-wrapper .ant-modal-close {
+  color: #9ca3af !important;
+}
+
+.dashboard-modal .ant-modal-close:hover,
+.dark-modal-wrapper .ant-modal-close:hover {
+  color: #f3f4f6 !important;
+}
+
+/* Button styling specifically for dashboard modals */
+.dashboard-modal .ant-btn-primary,
+.dark-modal-wrapper .ant-btn-primary {
+  background-color: #10b981 !important;
+  border-color: #10b981 !important;
+  color: #ffffff !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+
+.dashboard-modal .ant-btn-primary:hover,
+.dark-modal-wrapper .ant-btn-primary:hover {
+  background-color: #059669 !important;
+  border-color: #059669 !important;
+  text-shadow: none !important;
+}
+
+.dashboard-modal .ant-btn-default,
+.dark-modal-wrapper .ant-btn-default {
+  background-color: transparent !important;
+  border-color: #4a5568 !important;
+  color: #f3f4f6 !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+
+.dashboard-modal .ant-btn-default:hover,
+.dark-modal-wrapper .ant-btn-default:hover {
+  background-color: rgba(55, 65, 81, 0.95) !important;
+  border-color: #6b7280 !important;
+  color: #f3f4f6 !important;
+  text-shadow: none !important;
+}
+
+/* Form styling for dashboard modals */
+.dashboard-modal .ant-input,
+.dark-modal-wrapper .ant-input {
+  background-color: rgba(55, 65, 81, 0.95) !important;
+  border-color: #4a5568 !important;
+  color: #f3f4f6 !important;
+}
+
+.dashboard-modal .ant-input:focus,
+.dark-modal-wrapper .ant-input:focus,
+.dashboard-modal .ant-input:hover,
+.dark-modal-wrapper .ant-input:hover {
+  background-color: rgba(55, 65, 81, 0.95) !important;
+  border-color: #3b82f6 !important;
+  color: #f3f4f6 !important;
+}
+
+.dashboard-modal .ant-form-item-label > label,
+.dark-modal-wrapper .ant-form-item-label > label {
+  color: #f3f4f6 !important;
+}
+
+.dashboard-modal .ant-select-selector,
+.dark-modal-wrapper .ant-select-selector {
+  background-color: rgba(55, 65, 81, 0.95) !important;
+  border-color: #4a5568 !important;
+  color: #f3f4f6 !important;
+}
+
+.dashboard-modal .ant-select-selection-item,
+.dark-modal-wrapper .ant-select-selection-item {
+  color: #f3f4f6 !important;
+}
+
+/* Stock modal specific styling */
+.stock-modal .ant-modal,
+.stock-modal .ant-modal-content {
+  background: rgba(45, 55, 72, 0.95) !important;
+  border: 1px solid #4a5568 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.stock-modal .ant-modal-header {
+  background: rgba(31, 41, 55, 0.95) !important;
+  border-bottom: 1px solid #4a5568 !important;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+.stock-modal .ant-modal-title {
+  color: #f3f4f6 !important;
+  font-weight: 600 !important;
+}
+
+.stock-modal .ant-modal-body {
+  background: rgba(45, 55, 72, 0.95) !important;
+  color: #f3f4f6 !important;
+  padding: 24px !important;
+}
+
+.stock-modal .ant-modal-footer {
+  background: rgba(31, 41, 55, 0.95) !important;
+  border-top: 1px solid #4a5568 !important;
+  border-radius: 0 0 8px 8px !important;
+}
+
+.stock-modal .ant-btn-primary {
+  background-color: #10b981 !important;
+  border-color: #10b981 !important;
+  color: #ffffff !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+
+.stock-modal .ant-btn-primary:hover {
+  background-color: #059669 !important;
+  border-color: #059669 !important;
+  text-shadow: none !important;
+}
+
+.stock-modal .ant-btn-default {
+  background-color: transparent !important;
+  border-color: #4a5568 !important;
+  color: #f3f4f6 !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+
+.stock-modal .ant-btn-default:hover {
+  background-color: rgba(55, 65, 81, 0.95) !important;
+  border-color: #6b7280 !important;
+  color: #f3f4f6 !important;
+  text-shadow: none !important;
+}
+
+/* Fix for any remaining blue button issues in modals */
+.dashboard-modal .ant-btn,
+.dark-modal-wrapper .ant-btn,
+.stock-modal .ant-btn {
+  text-shadow: none !important;
+}
+
+/* Ensure modal content doesn't inherit problematic styles */
+.dashboard-modal *,
+.dark-modal-wrapper *,
+.stock-modal * {
+  text-shadow: none !important;
+}
+
+/* But allow specific text elements to have proper styling */
+.dashboard-modal .ant-modal-title,
+.dashboard-modal .ant-modal-body,
+.dashboard-modal .ant-form-item-label > label,
+.dashboard-modal .ant-typography,
+.dark-modal-wrapper .ant-modal-title,
+.dark-modal-wrapper .ant-modal-body,
+.dark-modal-wrapper .ant-form-item-label > label,
+.dark-modal-wrapper .ant-typography,
+.stock-modal .ant-modal-title,
+.stock-modal .ant-modal-body,
+.stock-modal .ant-form-item-label > label,
+.stock-modal .ant-typography {
+  text-shadow: none !important;
+}
+
+/* Ant Design Message/Toast styling for dashboard */
+.ant-message {
+  z-index: 9999 !important;
+}
+
+.ant-message-notice {
+  z-index: 9999 !important;
+}
+
+.ant-message-notice-content {
+  background: rgba(16, 185, 129, 0.95) !important;
+  border: 1px solid #10b981 !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.ant-message-success .ant-message-notice-content {
+  background: rgba(16, 185, 129, 0.95) !important;
+  border-color: #10b981 !important;
+  color: #ffffff !important;
+}
+
+.ant-message-error .ant-message-notice-content {
+  background: rgba(239, 68, 68, 0.95) !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+.ant-message-warning .ant-message-notice-content {
+  background: rgba(245, 158, 11, 0.95) !important;
+  border-color: #f59e0b !important;
+  color: #ffffff !important;
+}
+
+.ant-message-info .ant-message-notice-content {
+  background: rgba(59, 130, 246, 0.95) !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+}

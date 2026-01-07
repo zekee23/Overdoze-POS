@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useCallback } from 'react';
+import { memo, useMemo, useCallback } from 'react';
 import { FixedSizeList as List } from 'react-window';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 

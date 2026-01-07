@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, lazy, Suspense } from 'react';
+import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { useNavigate } from 'react-router-dom';
 import Card from 'antd/es/card';
 import Row from 'antd/es/row';
@@ -271,7 +271,7 @@ const { totalOrders, totalSales } = useMemo(() => {
             // Actual stats cards
             <>
               <Col xs={24} sm={12} md={6}>
-                <Card variant="borderless" style={{ textAlign: 'center', background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', color: '#fff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(59, 130, 246, 0.25)' }}>
+                <Card variant="borderless" style={{ alignItems: 'center', textAlign: 'center', background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', color: '#fff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(59, 130, 246, 0.25)' }}>
                   <Statistic
                     title={<span style={{ color: '#fff' }}>Total Orders</span>}
                     value={totalOrders}

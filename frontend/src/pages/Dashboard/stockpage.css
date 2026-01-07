@@ -90,53 +90,78 @@
 
 /* Table Card */
 .stock-table-card {
-  background: rgba(45, 55, 72, 0.95);
-  border: 1px solid #4a5568;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background: rgba(45, 55, 72, 0.95) !important;
+  border: 1px solid #4a5568 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
 }
 
 .stock-table-card .ant-card-head {
-  background: rgba(31, 41, 55, 0.95);
-  border-bottom: 1px solid #4a5568;
+  background: rgba(31, 41, 55, 0.95) !important;
+  border-bottom: 1px solid #4a5568 !important;
 }
 
 .stock-table-card .ant-card-head-title {
-  color: #f3f4f6;
+  color: #f3f4f6 !important;
   font-weight: 600;
   font-size: 18px;
 }
 
 .stock-table-card .ant-card-body {
-  padding: 0;
+  padding: 0 !important;
+  background: transparent !important;
 }
 
 /* Table Styles */
 .stock-table {
-  background: transparent;
+  background: transparent !important;
+}
+
+.stock-table .ant-table {
+  background: transparent !important;
+}
+
+.stock-table .ant-table-container {
+  background: transparent !important;
+}
+
+.stock-table .ant-table-content {
+  background: transparent !important;
 }
 
 .stock-table .ant-table-thead > tr > th {
-  background: rgba(31, 41, 55, 0.95);
-  border-bottom: 1px solid #4a5568;
-  color: #f3f4f6;
+  background: rgba(31, 41, 55, 0.95) !important;
+  border-bottom: 1px solid #4a5568 !important;
+  color: #f3f4f6 !important;
   font-weight: 600;
   padding: 16px;
 }
 
 .stock-table .ant-table-tbody > tr > td {
-  background: rgba(45, 55, 72, 0.95);
-  border-bottom: 1px solid #374151;
-  color: #f3f4f6;
+  background: rgba(45, 55, 72, 0.95) !important;
+  border-bottom: 1px solid #374151 !important;
+  color: #f3f4f6 !important;
   padding: 16px;
 }
 
 .stock-table .ant-table-tbody > tr:hover > td {
-  background: rgba(55, 65, 81, 0.95);
+  background: rgba(55, 65, 81, 0.95) !important;
 }
 
 .stock-table .ant-table-tbody > tr:last-child > td {
-  border-bottom: none;
+  border-bottom: none !important;
+}
+
+.stock-table .ant-table-wrapper {
+  background: transparent !important;
+}
+
+.stock-table .ant-table-header {
+  background: rgba(31, 41, 55, 0.95) !important;
+}
+
+.stock-table .ant-table-body {
+  background: transparent !important;
 }
 
 /* Status Tags */
@@ -199,38 +224,69 @@
 }
 
 /* Modal Styles */
-.stock-modal .ant-modal-header {
-  background: rgba(31, 41, 55, 0.95);
-  border-bottom: 1px solid #4a5568;
-}
-
-.stock-modal .ant-modal-title {
-  color: #f3f4f6;
-  font-weight: 600;
+.stock-modal .ant-modal {
+  background: rgba(45, 55, 72, 0.95) !important;
 }
 
 .stock-modal .ant-modal-content {
-  background: rgba(45, 55, 72, 0.95);
-  border: 1px solid #4a5568;
+  background: rgba(45, 55, 72, 0.95) !important;
+  border: 1px solid #4a5568 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.stock-modal .ant-modal-header {
+  background: rgba(31, 41, 55, 0.95) !important;
+  border-bottom: 1px solid #4a5568 !important;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+.stock-modal .ant-modal-title {
+  color: #f3f4f6 !important;
+  font-weight: 600 !important;
 }
 
 .stock-modal .ant-modal-body {
-  color: #f3f4f6;
+  background: rgba(45, 55, 72, 0.95) !important;
+  color: #f3f4f6 !important;
+  padding: 24px !important;
 }
 
 .stock-modal .ant-modal-footer {
-  background: rgba(31, 41, 55, 0.95);
-  border-top: 1px solid #4a5568;
+  background: rgba(31, 41, 55, 0.95) !important;
+  border-top: 1px solid #4a5568 !important;
+  border-radius: 0 0 8px 8px !important;
+}
+
+.stock-modal .ant-modal-close {
+  color: #9ca3af !important;
+}
+
+.stock-modal .ant-modal-close:hover {
+  color: #f3f4f6 !important;
 }
 
 .stock-modal .ant-btn-primary {
-  background-color: #3b82f6;
-  border-color: #3b82f6;
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
 }
 
 .stock-modal .ant-btn-primary:hover {
-  background-color: #2563eb;
-  border-color: #2563eb;
+  background-color: #2563eb !important;
+  border-color: #2563eb !important;
+}
+
+.stock-modal .ant-btn-default {
+  background-color: transparent !important;
+  border-color: #4a5568 !important;
+  color: #f3f4f6 !important;
+}
+
+.stock-modal .ant-btn-default:hover {
+  background-color: rgba(55, 65, 81, 0.95) !important;
+  border-color: #6b7280 !important;
+  color: #f3f4f6 !important;
 }
 
 /* Loading Spinner */
@@ -366,39 +422,59 @@
 
 /* Dark theme adjustments */
 .dashboard-dark .ant-table-pagination .ant-pagination-item {
-  background: rgba(55, 65, 81, 0.95);
-  border-color: #4a5568;
+  background: rgba(55, 65, 81, 0.95) !important;
+  border-color: #4a5568 !important;
 }
 
 .dashboard-dark .ant-table-pagination .ant-pagination-item a {
-  color: #f3f4f6;
+  color: #f3f4f6 !important;
 }
 
 .dashboard-dark .ant-table-pagination .ant-pagination-item-active {
-  background: #3b82f6;
-  border-color: #3b82f6;
+  background: #3b82f6 !important;
+  border-color: #3b82f6 !important;
 }
 
 .dashboard-dark .ant-table-pagination .ant-pagination-item-active a {
-  color: #ffffff;
+  color: #ffffff !important;
 }
 
 .dashboard-dark .ant-table-pagination .ant-pagination-prev,
 .dashboard-dark .ant-table-pagination .ant-pagination-next {
-  background: rgba(55, 65, 81, 0.95);
-  border-color: #4a5568;
+  background: rgba(55, 65, 81, 0.95) !important;
+  border-color: #4a5568 !important;
 }
 
 .dashboard-dark .ant-table-pagination .ant-pagination-prev .anticon,
 .dashboard-dark .ant-table-pagination .ant-pagination-next .anticon {
-  color: #f3f4f6;
+  color: #f3f4f6 !important;
 }
 
 .dashboard-dark .ant-table-pagination .ant-pagination-disabled {
-  background: rgba(31, 41, 55, 0.5);
-  border-color: #374151;
+  background: rgba(31, 41, 55, 0.5) !important;
+  border-color: #374151 !important;
 }
 
 .dashboard-dark .ant-table-pagination .ant-pagination-disabled .anticon {
-  color: #6b7280;
+  color: #6b7280 !important;
+}
+
+/* Additional table fixes for white background issue */
+.dashboard-dark .ant-table,
+.dashboard-dark .ant-table-container,
+.dashboard-dark .ant-table-content,
+.dashboard-dark .ant-table-body {
+  background: transparent !important;
+}
+
+.dashboard-dark .ant-table-tbody > tr > td {
+  background: rgba(45, 55, 72, 0.95) !important;
+  border-bottom: 1px solid #374151 !important;
+  color: #f3f4f6 !important;
+}
+
+.dashboard-dark .ant-table-thead > tr > th {
+  background: rgba(31, 41, 55, 0.95) !important;
+  border-bottom: 1px solid #4a5568 !important;
+  color: #f3f4f6 !important;
 }

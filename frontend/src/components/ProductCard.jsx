@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useCallback } from 'react';
+import { memo, useMemo, useCallback } from 'react';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 
 const ProductCard = memo(({ product, onClick }) => {

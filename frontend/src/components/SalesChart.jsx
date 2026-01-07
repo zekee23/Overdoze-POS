@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react';
+import { useRef, useMemo } from 'react';
 import { Card, Spin, Typography } from 'antd';
 import {
   Chart as ChartJS,
@@ -139,7 +139,7 @@ const SalesChart = ({ data }) => {
     >
       <div style={{ 
         position: 'relative', 
-        height: '440px', 
+        height: '470px', 
         width: '100%',
         padding: '10px 0'
       }}>
