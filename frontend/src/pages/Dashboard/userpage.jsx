@@ -113,13 +113,7 @@ const UserPage = () => {
   };
 
   const columns = [
-    { 
-      title: 'User ID', 
-      dataIndex: 'uid', 
-      key: 'uid', 
-      width: 100,
-      render: (text) => <Text style={{ color: '#f3f4f6' }}>{text}</Text>
-    },
+   
     { 
       title: 'Username', 
       dataIndex: 'username', 
@@ -134,25 +128,7 @@ const UserPage = () => {
       ellipsis: true,
       render: (text) => <Text style={{ color: '#f3f4f6' }}>{text}</Text>
     },
-    {
-      title: 'Role',
-      dataIndex: 'u_role',
-      key: 'u_role',
-      width: 120,
-      render: (role) => (
-        <Tag 
-          color={role === 'admin' ? 'gold' : 'blue'}
-          style={{ 
-            fontWeight: 500,
-            padding: '4px 8px',
-            borderRadius: '4px'
-          }}
-        >
-          {role === 'admin' ? <CrownOutlined style={{ marginRight: '4px' }} /> : <UserOutlined style={{ marginRight: '4px' }} />}
-          {role}
-        </Tag>
-      )
-    },
+  
     {
       title: 'Action',
       key: 'action',
@@ -375,7 +351,7 @@ const UserPage = () => {
             <Space>
               <TeamOutlined style={{ color: '#3b82f6', fontSize: '20px' }} />
               <Text strong style={{ color: '#f3f4f6', fontSize: '18px' }}>
-                Users List
+                Cashier List
               </Text>
             </Space>
           }
