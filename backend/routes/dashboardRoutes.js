@@ -2,7 +2,7 @@ import express from 'express';
 import { getDashboard, getPOS } from '../controllers/dashboardcontroller.js';
 import { authenticateToken, requireAdmin, requireCashier } from '../middleware/auth.js';
 import { productsRefreshProtection } from '../middleware/arcjet.js';
-import { getHomeData, getStock, setStockStatus,setStockStatusActive, getOrderHistory, getPeakHours,getUser,editUser, deleteUser} from '../controllers/dashboardController/dashboard.queries.js';
+import { getHomeData, getStock, setStockStatus,setStockStatusActive, getOrderHistory, getPeakHours,getUser,editUser, deleteUser,getMonthlyOrderSummary,getTop3ProductsPerMonth, getMonthlyDashboard, setMonthlyCash } from '../controllers/dashboardController/dashboard.queries.js';
 import { getProductsWithVariants, createProduct,createProductVariant,deleteProduct,updateProduct, refreshProducts } from '../controllers/productController.js';
 const router = express.Router();
 
@@ -27,4 +27,15 @@ router.get('/users', authenticateToken, requireAdmin, getUser);
 router.put('/users/:uid', authenticateToken, requireAdmin, editUser);
 router.delete('/users/:uid', authenticateToken, requireAdmin, deleteUser);
 router.put('/restock/:id', authenticateToken, requireAdmin, setStockStatusActive);
+
+// Monthly order summary
+router.get('/monthly-order-summary', getMonthlyOrderSummary);
+
+// Top 3 products per month
+router.get('/top-products', getTop3ProductsPerMonth);
+
+// Monthly dashboard endpoints
+router.get('/monthly', authenticateToken, requireAdmin, getMonthlyDashboard);
+router.post('/admin/monthly-cash', authenticateToken, requireAdmin, setMonthlyCash);
+
 export default router;

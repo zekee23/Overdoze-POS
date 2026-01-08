@@ -13,7 +13,7 @@ const StockPage = lazy(() => import('./pages/Dashboard/stockpage.jsx'));
 const OrderHistory = lazy(() => import('./pages/Dashboard/OrderHistory.jsx'));
 const ProductPage = lazy(() => import('./pages/Dashboard/productpage.jsx'));
 const UserPage = lazy(() => import('./pages/Dashboard/userpage.jsx'));
-
+const ReportsPage = lazy(() => import('./pages/Dashboard/reports.jsx'));
 function App() {
   useEffect(() => {
     // Analyze bundle size in development
@@ -33,6 +33,7 @@ function App() {
           <Route path="/order-history" element={<OrderHistory />} />
           <Route path="/products" element={<ProductPage />} />
           <Route path="/user-page" element={<UserPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
           <Route path="/pos" element={<POS />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />

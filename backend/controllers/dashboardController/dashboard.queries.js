@@ -325,3 +325,191 @@ export const deleteUser = async(req,res) => {
         
     }
 };
+
+
+//GET /api/monthly-order-summary          // Current month (January 2026)
+//GET /api/monthly-order-summary?month=1  // January 
+//GET /api/top-products                    // Current month top 3
+//GET /api/top-products?month=12&year=2025 // December 2025 top 3
+
+
+export const getMonthlyOrderSummary = async(req,res) => {
+    try {
+        const { month, year } = req.query;
+        const targetMonth = month ? parseInt(month) : new Date().getMonth() + 1;
+        const targetYear = year ? parseInt(year) : new Date().getFullYear();
+        
+        const summary = await pool.query(
+            `SELECT
+                TO_CHAR(DATE_TRUNC('month', created_at), 'YYYY-MM') AS month,
+                COUNT(order_id) AS total_orders,
+                COALESCE(SUM(total_amount), 0) AS gross_sales
+            FROM orders
+            WHERE EXTRACT(MONTH FROM created_at) = $1
+            AND EXTRACT(YEAR FROM created_at) = $2
+            GROUP BY month;`,
+            [targetMonth, targetYear]
+        );
+        res.json(summary.rows);
+
+    } catch (error) {
+        console.log('ERROR fetching monthly order summary: ', error);
+        res.status(500).json({error:"Internal Server Error"});
+    }
+}
+
+export const getTop3ProductsPerMonth = async(req,res) => {
+    try {
+        const { month, year } = req.query;
+        const targetMonth = month ? parseInt(month) : new Date().getMonth() + 1;
+        const targetYear = year ? parseInt(year) : new Date().getFullYear();
+        
+        const topProducts = await pool.query(
+            `SELECT 
+                p.product_name,
+                SUM(oi.quantity) AS total_sold,
+                SUM(oi.subtotal) AS total_revenue
+            FROM order_items oi
+            JOIN products p ON oi.product_id = p.product_id
+            JOIN orders o ON oi.order_id = o.order_id
+            WHERE EXTRACT(MONTH FROM o.created_at) = $1
+            AND EXTRACT(YEAR FROM o.created_at) = $2
+            GROUP BY p.product_name
+            ORDER BY total_sold DESC
+            LIMIT 3`,
+            [targetMonth, targetYear]
+        );
+        
+        res.json(topProducts.rows);
+    } catch (error) {
+        console.log('ERROR fetching top products: ', error);
+        res.status(500).json({error:"Internal Server Error"});
+    }
+}
+
+export const getMonthlyDashboard = async (req, res) => {
+    try {
+        const { month } = req.query;
+        
+        if (!month || !/^\d{4}-\d{2}$/.test(month)) {
+            return res.status(400).json({ error: 'Month parameter required in YYYY-MM format' });
+        }
+        
+        const startDate = `${month}-01`;
+        const endDate = new Date(startDate);
+        endDate.setMonth(endDate.getMonth() + 1);
+        const endDateStr = endDate.toISOString().split('T')[0];
+        
+        const dashboardQuery = `
+            WITH monthly_orders AS (
+                SELECT 
+                    COUNT(order_id) AS total_orders,
+                    COALESCE(SUM(total_amount), 0) AS gross_sales
+                FROM orders
+                WHERE created_at >= $1 AND created_at < $2
+            ),
+            monthly_cash_data AS (
+                SELECT 
+                    COALESCE(starting_cash, 0) AS starting_cash
+                FROM monthly_cash
+                WHERE month = DATE_TRUNC('month', $1::date)
+                LIMIT 1
+            ),
+            top_products AS (
+                SELECT 
+                    p.product_name,
+                    SUM(oi.quantity) AS total_sold,
+                    SUM(oi.subtotal) AS total_revenue
+                FROM order_items oi
+                JOIN products p ON oi.product_id = p.product_id
+                JOIN orders o ON oi.order_id = o.order_id
+                WHERE o.created_at >= $1 AND o.created_at < $2
+                GROUP BY p.product_name
+                ORDER BY total_revenue DESC
+                LIMIT 3
+            )
+            SELECT 
+                mo.total_orders,
+                mo.gross_sales,
+                mcd.starting_cash,
+                CASE 
+                    WHEN mcd.starting_cash > 0 
+                    THEN mo.gross_sales - mcd.starting_cash
+                    ELSE 0 
+                END AS profit,
+                tp.product_name,
+                tp.total_sold,
+                tp.total_revenue
+            FROM monthly_orders mo
+            CROSS JOIN monthly_cash_data mcd
+            CROSS JOIN top_products tp`;
+        
+        const result = await pool.query(dashboardQuery, [startDate, endDateStr]);
+        
+        if (result.rows.length === 0) {
+            return res.json({
+                total_orders: 0,
+                gross_sales: 0,
+                starting_cash: 0,
+                profit: 0,
+                top_products: []
+            });
+        }
+        
+        const firstRow = result.rows[0];
+        const topProducts = result.rows.map(row => ({
+            product_name: row.product_name,
+            total_sold: parseInt(row.total_sold),
+            total_revenue: parseFloat(row.total_revenue)
+        }));
+        
+        res.json({
+            total_orders: parseInt(firstRow.total_orders),
+            gross_sales: parseFloat(firstRow.gross_sales),
+            starting_cash: parseFloat(firstRow.starting_cash),
+            profit: parseFloat(firstRow.profit),
+            top_products: topProducts
+        });
+        
+    } catch (error) {
+        console.error('ERROR fetching monthly dashboard:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+export const setMonthlyCash = async (req, res) => {
+    try {
+        const { month, starting_cash } = req.body;
+        
+        if (!month || !/^\d{4}-\d{2}$/.test(month)) {
+            return res.status(400).json({ error: 'Month parameter required in YYYY-MM format' });
+        }
+        
+        if (!starting_cash || isNaN(starting_cash) || parseFloat(starting_cash) < 0) {
+            return res.status(400).json({ error: 'Valid starting cash amount required' });
+        }
+        
+        const monthDate = `${month}-01`;
+        
+        const result = await pool.query(
+            `INSERT INTO monthly_cash (month, starting_cash, created_by)
+             VALUES (DATE_TRUNC('month', $1::date), $2, $3)
+             ON CONFLICT (month) 
+             DO UPDATE SET 
+                 starting_cash = EXCLUDED.starting_cash,
+                 created_by = EXCLUDED.created_by,
+                 created_at = NOW()
+             RETURNING *`,
+            [monthDate, parseFloat(starting_cash), req.userId]
+        );
+        
+        res.json({
+            message: 'Monthly cash set successfully',
+            data: result.rows[0]
+        });
+        
+    } catch (error) {
+        console.error('ERROR setting monthly cash:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
