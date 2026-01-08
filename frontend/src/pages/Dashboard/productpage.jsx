@@ -597,138 +597,107 @@ const ProductPage = () => {
         {/* Welcome Section */}
         <Card style={{ 
           marginBottom: '24px', 
-          backgroundColor: '#2d3748', 
-          borderColor: '#4a5568', 
-          borderRadius: '12px',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+          background: 'linear-gradient(135deg, #2d3748 0%, #1a202c 100%)', 
+          borderColor: 'transparent', 
+          borderRadius: '16px',
+          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+          border: '1px solid rgba(59, 130, 246, 0.1)'
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <Title level={2} style={{ margin: 0, color: '#f3f4f6' }}>
-                Product Inventory Management
-              </Title>
-              <Text style={{ color: '#9ca3af', fontSize: '14px', lineHeight: '1.4' }}>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                <div style={{
+                  width: '4px',
+                  height: '32px',
+                  backgroundColor: '#3b82f6',
+                  borderRadius: '2px',
+                  marginRight: '12px'
+                }} />
+                <Title level={2} style={{ margin: 0, color: '#f3f4f6', fontWeight: '600' }}>
+                  Product Inventory Management
+                </Title>
+              </div>
+              <Text style={{ color: '#9ca3af', fontSize: '14px', lineHeight: '1.4', marginLeft: '16px' }}>
                 Create, update, and manage your product catalog with ease
               </Text>
             </div>
-            <button style={{ backgroundColor: '#3b82f6', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer' }}>
-              Add starting cash
-            </button>
+            <div style={{ 
+              textAlign: 'right',
+              background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%)',
+              padding: '20px 24px',
+              borderRadius: '12px',
+              border: '1px solid rgba(59, 130, 246, 0.2)',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: '6px' }}>
+                <InboxOutlined style={{ color: '#3b82f6', fontSize: '18px', marginRight: '8px' }} />
+                <Text style={{ 
+                  color: '#3b82f6', 
+                  fontSize: '36px', 
+                  fontWeight: '700', 
+                  lineHeight: '1',
+                  textShadow: '0 2px 4px rgba(59, 130, 246, 0.3)'
+                }}>
+                  {totalProducts}
+                </Text>
+              </div>
+              <Text style={{ 
+                color: '#64748b', 
+                fontSize: '13px', 
+                display: 'block', 
+                marginTop: '4px',
+                fontWeight: '500',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                Total Products
+              </Text>
+            </div>
           </div>
         </Card>
-
-        {/* Stats Cards */}
-        <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
-          <Col xs={24} sm={12} md={6}>
-            <Card 
-              style={{ 
-                backgroundColor: '#1e40af', 
-                border: 'none',
-                borderRadius: '12px',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              <Statistic
-                title="Total Products"
-                value={totalProducts}
-                valueStyle={{ color: '#fff', fontSize: '32px' }}
-                prefix={<InboxOutlined style={{ color: '#bfdbfe' }} />}
-              />
-              <Text style={{ color: '#bfdbfe', fontSize: '14px', marginTop: '8px', display: 'block' }}>
-                All products in inventory
-              </Text>
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card 
-              style={{ 
-                backgroundColor: '#065f46', 
-                border: 'none',
-                borderRadius: '12px',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              <Statistic
-                title="In Stock"
-                value={inStockProducts}
-                valueStyle={{ color: '#fff', fontSize: '32px' }}
-                prefix={<ShoppingOutlined style={{ color: '#bbf7d0' }} />}
-              />
-              <Text style={{ color: '#bbf7d0', fontSize: '14px', marginTop: '8px', display: 'block' }}>
-                Products with adequate stock
-              </Text>
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card 
-              style={{ 
-                backgroundColor: '#9d174d', 
-                border: 'none',
-                borderRadius: '12px',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              <Statistic
-                title="Low Stock"
-                value={lowStockProducts}
-                valueStyle={{ color: '#fff', fontSize: '32px' }}
-                prefix={<ReloadOutlined style={{ color: '#fbcfe8' }} />}
-              />
-              <Text style={{ color: '#fbcfe8', fontSize: '14px', marginTop: '8px', display: 'block' }}>
-                Items need restocking soon
-              </Text>
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Card 
-              style={{ 
-                backgroundColor: '#991b1b', 
-                border: 'none',
-                borderRadius: '12px',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-              }}
-            >
-              <Statistic
-                title="Out of Stock"
-                value={outOfStockProducts}
-                valueStyle={{ color: '#fff', fontSize: '32px' }}
-                prefix={<DeleteOutlined style={{ color: '#fecaca' }} />}
-              />
-              <Text style={{ color: '#fecaca', fontSize: '14px', marginTop: '8px', display: 'block' }}>
-                Products unavailable
-              </Text>
-            </Card>
-          </Col>
-        </Row>
 
         {/* Products Table */}
         <Card 
           style={{ 
-            backgroundColor: '#2d3748', 
-            borderColor: '#4a5568', 
-            borderRadius: '12px',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+            background: 'linear-gradient(135deg, #2d3748 0%, #1a202c 100%)', 
+            borderColor: 'transparent', 
+            borderRadius: '16px',
+            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+            border: '1px solid rgba(59, 130, 246, 0.1)'
           }}
           title={
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-              <Space>
-                <InboxOutlined style={{ color: '#3b82f6', fontSize: '20px' }} />
-                <Text strong style={{ color: '#f3f4f6', fontSize: '18px' }}>
-                  Products List
-                </Text>
-              </Space>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div style={{
+                  width: '3px',
+                  height: '24px',
+                  backgroundColor: '#3b82f6',
+                  borderRadius: '2px',
+                  marginRight: '12px'
+                }} />
+                <Space>
+                  <InboxOutlined style={{ color: '#3b82f6', fontSize: '20px' }} />
+                  <Text strong style={{ color: '#f3f4f6', fontSize: '18px', fontWeight: '600' }}>
+                    Products List
+                  </Text>
+                </Space>
+              </div>
               <Input
                 ref={searchInputRef}
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => handleSearch(e.target.value)}
                 style={{ 
-                  width: '250px', 
-                  backgroundColor: '#374151',
-                  borderColor: '#4b5563',
+                  width: '280px', 
+                  background: 'rgba(55, 65, 81, 0.6)',
+                  borderColor: 'rgba(59, 130, 246, 0.3)',
                   color: '#f3f4f6',
                   marginRight: '20px',
+                  borderRadius: '8px',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(59, 130, 246, 0.2)'
                 }}
+                prefix={<InboxOutlined style={{ color: '#64748b' }} />}
               />
             </div>
           }
@@ -738,7 +707,14 @@ const ProductPage = () => {
                 icon={<ReloadOutlined />}
                 onClick={handleRefresh}
                 loading={loading}
-                style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
+                style={{ 
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                  borderColor: 'transparent',
+                  borderRadius: '8px',
+                  fontWeight: '500',
+                  boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                  border: 'none'
+                }}
                 title="Refresh products"
               >
                 Refresh
@@ -746,8 +722,16 @@ const ProductPage = () => {
               <Button
                 type="primary"
                 onClick={handleCreate}
-                style={{ backgroundColor: '#10b981', borderColor: '#10b981' }}
+                style={{ 
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  borderColor: 'transparent',
+                  borderRadius: '8px',
+                  fontWeight: '500',
+                  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                  border: 'none'
+                }}
               >
+                <PlusOutlined style={{ marginRight: '6px' }} />
                 Add Product
               </Button>
             </Space>
