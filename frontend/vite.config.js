@@ -5,7 +5,10 @@ import { visualizer } from 'rollup-plugin-visualizer'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      // Ensure fast refresh works properly
+      fastRefresh: true,
+    }),
     visualizer({
       filename: 'dist/stats.html',
       open: false,
@@ -31,7 +34,8 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
+          // Keep React together to prevent runtime duplication
+          react: ['react', 'react-dom'],
           router: ['react-router-dom'],
           'antd-core': ['antd/es/config-provider', 'antd/es/button', 'antd/es/input'],
           'antd-components': ['antd/es/modal', 'antd/es/table', 'antd/es/form'],
@@ -49,11 +53,29 @@ export default defineConfig({
     target: 'esnext',
   },
   server: {
-    headers: {
-      'Cache-Control': 'public, max-age=31536000',
-    },
+  hmr: {
+    // Remove hardcoded port to prevent conflicts
+    overlay: true,
   },
+  headers: {
+    // Only block JS chunks in development, allow other caching
+    'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+  }
+},
+
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom'],
+    // Force pre-bundling of React to prevent runtime duplication
+    include: [
+      'react', 
+      'react-dom', 
+      'react-router-dom', 
+      'antd', 
+      '@ant-design/icons',
+      '@mui/material',
+      '@emotion/react',
+      '@emotion/styled'
+    ],
+    // Force rebuild to clear any stale cached versions
+    force: true
   },
 })

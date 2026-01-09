@@ -126,3 +126,40 @@
 .dashboard-dark .ant-title {
   color: #f3f4f6 !important;
 }
+
+/* Specific overrides for profit card colors - higher specificity */
+.dashboard-dark .profit-card-content .profit-positive,
+.dashboard-dark .profit-positive {
+  color: #10b981 !important;
+}
+
+.dashboard-dark .profit-card-content .profit-negative,
+.dashboard-dark .profit-negative {
+  color: #ef4444 !important;
+}
+
+/* Override ant-statistic content color specifically */
+.dashboard-dark .ant-statistic-content.profit-positive {
+  color: #10b981 !important;
+}
+
+.dashboard-dark .ant-statistic-content.profit-negative {
+  color: #ef4444 !important;
+}
+
+/* Specific overrides for trophy colors */
+.trophy-icon .anticon {
+  color: inherit !important;
+}
+
+.trophy-icon .trophy-gold {
+  color: #FFD700 !important;
+}
+
+.trophy-icon .trophy-silver {
+  color: #C0C0C0 !important;
+}
+
+.trophy-icon .trophy-bronze {
+  color: #CD7F32 !important;
+}

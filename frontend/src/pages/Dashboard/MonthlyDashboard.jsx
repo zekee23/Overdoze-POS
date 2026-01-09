@@ -406,8 +406,12 @@ const MonthlyDashboard = () => {
                     title="Profit"
                     value={dashboardData.profit}
                     formatter={(value) => formatCurrency(value)}
-                    valueStyle={{ color: '#fff', fontSize: '32px' }}
-                    prefix={<RiseOutlined style={{ color: dashboardData.profit >= 0 ? '#bbf7d0' : '#fecaca' }} />}
+                    valueStyle={{ 
+                      fontSize: '32px',
+                      fontWeight: 'bold'
+                    }}
+                    className={dashboardData.profit >= 0 ? 'profit-positive' : 'profit-negative'}
+                    prefix={<RiseOutlined style={{ color: dashboardData.profit >= 0 ? '#10b981' : '#ef4444' }} />}
                   />
                   <Text style={{ 
                     color: dashboardData.profit >= 0 ? '#bbf7d0' : '#fecaca', 
@@ -466,12 +470,14 @@ const MonthlyDashboard = () => {
                             textAlign: 'center'
                           }}
                         >
-                          <div style={{ marginBottom: '12px' }}>
+                          <div style={{ marginBottom: '12px' }} className="trophy-icon">
                             <TrophyOutlined 
-                              style={{ 
-                                fontSize: '24px',
-                                color: index === 0 ? '#ffd700' : index === 1 ? '#c0c0c0' : '#cd7f32' 
-                              }} 
+                              className={
+                                index === 0 ? 'trophy-gold' : 
+                                index === 1 ? 'trophy-silver' : 
+                                'trophy-bronze'
+                              }
+                              style={{ fontSize: '24px' }}
                             />
                           </div>
                           <Title level={4} style={{ color: '#fff', margin: '8px 0' }}>
