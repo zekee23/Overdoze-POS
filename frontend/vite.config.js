@@ -34,14 +34,11 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          // Keep React together to prevent runtime duplication
-          react: ['react', 'react-dom'],
+          vendor: ['react', 'react-dom'],
           router: ['react-router-dom'],
-          'antd-core': ['antd/es/config-provider', 'antd/es/button', 'antd/es/input'],
-          'antd-components': ['antd/es/modal', 'antd/es/table', 'antd/es/form'],
-          'mui-core': ['@mui/material', '@mui/icons-material'],
+          ui: ['antd'],
           charts: ['chart.js', 'react-chartjs-2'],
-          utils: ['axios'],
+          utils: ['axios', 'lucide-react'],
         },
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',
@@ -71,9 +68,7 @@ export default defineConfig({
       'react-router-dom', 
       'antd', 
       '@ant-design/icons',
-      '@mui/material',
-      '@emotion/react',
-      '@emotion/styled'
+      'axios'
     ],
     // Force rebuild to clear any stale cached versions
     force: true
