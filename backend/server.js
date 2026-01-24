@@ -11,8 +11,15 @@ import OrdersRoutes from "./routes/OrdersRoutes.js";
 import dashboardRoutes from './routes/dashboardRoutes.js';
 
 import posroutes from './routes/posRoutes.js';
-dotenv.config();
 
+// New daily tracking routes
+import cashierSessionRoutes from './routes/cashierSessionRoutes.js';
+import variantUsageRoutes from './routes/variantUsageRoutes.js';
+import dailyStockRoutes from './routes/dailyStockRoutes.js';
+import dailyReportsRoutes from './routes/dailyReportsRoutes.js';
+import cashDrawerRoutes from './routes/cashDrawerRoutes.js';
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -52,9 +59,11 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use('/api', posroutes)
 app.use('/api', OrdersRoutes);
 
-
-
-
+app.use('/api', cashierSessionRoutes);
+app.use('/api', variantUsageRoutes);
+app.use('/api', dailyStockRoutes);
+app.use('/api', dailyReportsRoutes);
+app.use('/api/cash-drawer', cashDrawerRoutes);
 
 app.listen(PORT, () => {
     console.log("Server is running on port " + PORT);

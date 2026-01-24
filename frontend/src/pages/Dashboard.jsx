@@ -7,13 +7,15 @@ import Spin from 'antd/es/spin';
 import Button from 'antd/es/button';
 import Typography from 'antd/es/typography';
 import Statistic from 'antd/es/statistic';
-import { UserOutlined, LogoutOutlined, DollarOutlined, ShoppingCartOutlined, TeamOutlined, MenuOutlined } from '@ant-design/icons';
+import { UserOutlined, LogoutOutlined, DollarOutlined, ShoppingCartOutlined, TeamOutlined, MenuOutlined, WalletOutlined } from '@ant-design/icons';
 import { dashboardAPI } from '../utils/api';
 import { useRefreshRateLimit } from '../hooks/useRefreshRateLimit';
 const SalesChart = lazy(() => import('../components/SalesChart'));
 const RecentOrders = lazy(() => import('../components/RecentOrders'));
 const OverlaySidebar = lazy(() => import('../components/OverlaySidebar'));
 const RateLimitedRefreshButton = lazy(() => import('../components/RateLimitedRefreshButton'));
+const StartingCashCard = lazy(() => import('../components/StartingCashCard'));
+const TotalMoneyCard = lazy(() => import('../components/TotalMoneyCard'));
 
 import './Dashboard.css';
 
@@ -197,20 +199,6 @@ const { totalOrders, totalSales } = useMemo(() => {
               }}
             />
             
-            <div style={{
-              backgroundColor: '#374151',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              border: '1px solid #4b5563'
-            }}>
-              <UserOutlined style={{ marginRight: '8px', color: '#3b82f6' }} />
-              <Text strong style={{ color: '#f3f4f6' }}>
-                {user.full_name || user.username || 'Admin'}
-              </Text>
-            </div>
-            
             <Button 
               type="primary" 
               icon={<LogoutOutlined />}
@@ -257,9 +245,9 @@ const { totalOrders, totalSales } = useMemo(() => {
         <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
           {dataLoading ? (
             // Loading skeleton for stats cards
-            [1, 2, 3, 4].map((index) => (
-              <Col xs={24} sm={12} md={6} key={index}>
-                <Card variant="borderless" style={{ textAlign: 'center', backgroundColor: '#2d3748', borderRadius: '12px' }}>
+            [1, 2, 3, 4, 5, 6].map((index) => (
+              <Col xs={24} sm={12} md={8} lg={8} xl={8} key={index}>
+                <Card variant="borderless" style={{ textAlign: 'center', backgroundColor: '#2d3748', borderRadius: '12px', minHeight: '140px' }}>
                   <Spin size="large" />
                   <div style={{ marginTop: '16px' }}>
                     <Text style={{ color: '#9ca3af' }}>Loading...</Text>
@@ -270,31 +258,31 @@ const { totalOrders, totalSales } = useMemo(() => {
           ) : (
             // Actual stats cards
             <>
-              <Col xs={24} sm={12} md={6}>
-                <Card variant="borderless" style={{ alignItems: 'center', textAlign: 'center', background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', color: '#fff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(59, 130, 246, 0.25)' }}>
+              <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+                <Card variant="borderless" style={{ alignItems: 'center', textAlign: 'center', background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', color: '#fff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(59, 130, 246, 0.25)', minHeight: '140px' }}>
                   <Statistic
-                    title={<span style={{ color: '#fff' }}>Total Orders</span>}
+                    title={<span style={{ color: '#fff', fontSize: '14px' }}>Total Orders</span>}
                     value={totalOrders}
                     prefix={<ShoppingCartOutlined />}
-                    styles={{ content: { color: '#fff' } }}
+                    styles={{ content: { color: '#fff', fontSize: '24px', fontWeight: 'bold' } }}
                   />
                 </Card>
               </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Card variant="borderless" style={{ textAlign: 'center', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(16, 185, 129, 0.25)' }}>
+              <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+                <Card variant="borderless" style={{ textAlign: 'center', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(16, 185, 129, 0.25)', minHeight: '140px' }}>
                   <Statistic
-                    title={<span style={{ color: '#fff' }}>Total Sales</span>}
+                    title={<span style={{ color: '#fff', fontSize: '14px' }}>Total Sales</span>}
                     value={totalSales}
                     precision={2}
                     prefix="PHP"
-                    styles={{ content: { color: '#fff' } }}
+                    styles={{ content: { color: '#fff', fontSize: '24px', fontWeight: 'bold' } }}
                   />
                 </Card>
               </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Card variant="borderless" style={{ textAlign: 'center', background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#fff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(245, 158, 11, 0.25)' }}>
+              <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+                <Card variant="borderless" style={{ textAlign: 'center', background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#fff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(245, 158, 11, 0.25)', minHeight: '140px' }}>
                   <Statistic
-                    title={<span style={{ color: '#fff' }}>Cashier Today</span>}
+                    title={<span style={{ color: '#fff', fontSize: '14px' }}>Cashier Today</span>}
                     value={dashboardData.KPIToday.length > 0 
                       ? dashboardData.KPIToday.map(cashier => cashier.cashier_name || 'Unassigned').join(', ')
                       : 'No cashiers today'
@@ -303,7 +291,7 @@ const { totalOrders, totalSales } = useMemo(() => {
                     styles={{ 
                       content: {
                         color: '#fff',
-                        fontSize: '25px',
+                        fontSize: '16px',
                         fontWeight: 'bold',
                         whiteSpace: 'normal',
                         wordBreak: 'break-word'
@@ -312,16 +300,34 @@ const { totalOrders, totalSales } = useMemo(() => {
                   />
                 </Card>
               </Col>
-              <Col xs={24} sm={12} md={6}>
-                <Card variant="borderless" style={{ textAlign: 'center', background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', color: '#fff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(239, 68, 68, 0.25)' }}>
+              <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+                <Card variant="borderless" style={{ textAlign: 'center', background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', color: '#fff', borderRadius: '12px', boxShadow: '0 4px 20px rgba(239, 68, 68, 0.25)', minHeight: '140px' }}>
                   <Statistic
-                    title={<span style={{ color: '#fff' }}>Avg per Order</span>}
+                    title={<span style={{ color: '#fff', fontSize: '14px' }}>Avg per Order</span>}
                     value={totalOrders > 0 ? (totalSales / totalOrders).toFixed(2) : 0}
                     precision={2}
                     prefix="PHP"
-                    styles={{ content: { color: '#fff' } }}
+                    styles={{ content: { color: '#fff', fontSize: '24px', fontWeight: 'bold' } }}
                   />
                 </Card>
+              </Col>
+              <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+                <Suspense fallback={
+                  <Card variant="borderless" style={{ textAlign: 'center', backgroundColor: '#2d3748', borderRadius: '12px', minHeight: '140px' }}>
+                    <Spin size="large" />
+                  </Card>
+                }>
+                  <StartingCashCard />
+                </Suspense>
+              </Col>
+              <Col xs={24} sm={12} md={8} lg={8} xl={8}>
+                <Suspense fallback={
+                  <Card variant="borderless" style={{ textAlign: 'center', backgroundColor: '#2d3748', borderRadius: '12px', minHeight: '140px' }}>
+                    <Spin size="large" />
+                  </Card>
+                }>
+                  <TotalMoneyCard totalSales={totalSales} />
+                </Suspense>
               </Col>
             </>
           )}

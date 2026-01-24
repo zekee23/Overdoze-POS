@@ -1,33 +1,47 @@
 import pool from '../config/db.js';
+import { updateUsageFromOrder } from './variantUsageController.js';
+import { updateStockFromUsage } from './dailyStockController.js';
 
 export const createOrder = async (req, res) => {
   const client = await pool.connect();
 
   try {
-    const { cashier_id, cart, total_amount } = req.body;
+    const { cashier_id, cart, total_amount, session_id } = req.body;
 
     if (!cart || cart.length === 0) {
       return res.status(400).json({ message: 'Cart is empty' });
+    }
+
+    // Validate session if provided
+    if (session_id) {
+      const sessionResult = await client.query(
+        'SELECT session_id FROM cashier_sessions WHERE session_id = $1 AND session_status = $2',
+        [session_id, 'active']
+      );
+      
+      if (sessionResult.rows.length === 0) {
+        return res.status(400).json({ error: 'Invalid or inactive session' });
+      }
     }
 
     await client.query('BEGIN');
 
     // 1️⃣ Create ORDER
     const orderResult = await client.query(
-      `INSERT INTO orders (cashier_id, total_amount)
-       VALUES ($1, $2)
+      `INSERT INTO orders (cashier_id, total_amount, session_id)
+       VALUES ($1, $2, $3)
        RETURNING order_id`,
-      [cashier_id, total_amount]
+      [cashier_id, total_amount, session_id || null]
     );
 
     const orderId = orderResult.rows[0].order_id;
 
-    // 2️⃣ Process ITEMS
+    // 2️⃣ Process ITEMS and deduct cup stock
     for (const item of cart) {
 
       // 🔒 Fetch price from DB (SECURITY)
       const variantRes = await client.query(
-        `SELECT price FROM product_variants WHERE variant_id = $1`,
+        `SELECT price, size_label FROM product_variants WHERE variant_id = $1`,
         [item.variant.variant_id]
       );
 
@@ -36,6 +50,7 @@ export const createOrder = async (req, res) => {
       }
 
       const priceEach = variantRes.rows[0].price;
+      const sizeLabel = variantRes.rows[0].size_label;
       const subtotal = priceEach * item.quantity;
 
       const itemResult = await client.query(
@@ -57,7 +72,15 @@ export const createOrder = async (req, res) => {
 
       const orderItemId = itemResult.rows[0].order_item_id;
 
-      // 3️⃣ Add ADD-ONS
+      // 3️⃣ Deduct cup stock atomically
+      if (sizeLabel) {
+        await client.query(
+          'SELECT deduct_cup_stock($1, $2)',
+          [sizeLabel, item.quantity]
+        );
+      }
+
+      // 4️⃣ Add ADD-ONS
       let addonsTotal = 0;
 
 for (const addon of item.addons) {
@@ -84,9 +107,27 @@ for (const addon of item.addons) {
 
     await client.query('COMMIT');
 
+    // Update daily variant usage and stock after successful order creation
+    try {
+      const business_date = new Date().toISOString().split('T')[0]; // CURRENT_DATE
+      
+      // Update usage for each variant in the order
+      for (const item of cart) {
+        await updateStockFromUsage(business_date, item.variant.variant_id, item.quantity);
+      }
+      
+      // Update usage tracking
+      await updateUsageFromOrder(orderId);
+      
+    } catch (usageError) {
+      console.error('ERROR updating usage/stock:', usageError);
+      // Don't fail the order, just log the error
+    }
+
     res.status(201).json({
       success: true,
-      order_id: orderId
+      order_id: orderId,
+      session_id: session_id || null
     });
 
   } catch (err) {

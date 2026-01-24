@@ -42,26 +42,10 @@ api.interceptors.response.use(
 // API endpoints
 export const authAPI = {
   login: (credentials) => api.post('/users/login', credentials),
-  // Step 1: Send OTP
-  sendOTP: (email) => api.post('/users/send-otp', { email }),
-  // Step 2: Verify OTP and register
-  verifyOTPAndRegister: (data) => api.post('/users/verify-otp-register', data),
-  register: (userData) => api.post('/users/register', userData),
   getCurrentUser: () => api.get('/users/me'),
-  registerAdmin: (userData) => api.post('/users/register-admin', userData),
-  requestPasswordReset: (email) => api.post('/users/request-password-reset', { email }),
-  resetPassword: (data) => api.post('/users/reset-password', data),
-  
 };
 
-
-
-{
-
-}
-
 export const userAPI = {
-  createCashier: (userData) => api.post('/users/create-cashier', userData),
   deleteUser: (userId) => api.delete(`/users/delete-user/${userId}`),
 };
 
@@ -74,4 +58,10 @@ export const orderAPI = {
 
 export const dashboardAPI = {
   getHomeData: () => api.get('/dashboard/home-data'),
+};
+
+export const cashDrawerAPI = {
+  setStartingCash: (startingCash) => api.post('/cash-drawer/starting-cash', { starting_cash: startingCash }),
+  getTodayStartingCash: () => api.get('/cash-drawer/starting-cash'),
+  getExpectedCashInDrawer: () => api.get('/cash-drawer/expected-cash'),
 };

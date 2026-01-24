@@ -1,0 +1,159 @@
+import { formatCurrency, formatDate, formatMonth } from './formatters.js';
+
+export const generatePDFFromReport = (report) => {
+  if (!report) return;
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Overdoze Monthly Report - ${report.month}</title>
+      <style>
+        body { 
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+          margin: 0; 
+          padding: 20px; 
+          background: #f5f5f5; 
+          color: #333;
+        }
+        .header { 
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+          color: white; 
+          padding: 30px; 
+          border-radius: 10px; 
+          margin-bottom: 30px; 
+          text-align: center;
+        }
+        .header h1 { margin: 0; font-size: 28px; }
+        .header p { margin: 10px 0 0 0; opacity: 0.9; }
+        .kpi-grid { 
+          display: grid; 
+          grid-template-columns: repeat(4, 1fr); 
+          gap: 20px; 
+          margin-bottom: 30px; 
+        }
+        .kpi-card { 
+          background: white; 
+          padding: 20px; 
+          border-radius: 10px; 
+          text-align: center; 
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .kpi-value { font-size: 24px; font-weight: bold; margin-bottom: 5px; }
+        .kpi-label { font-size: 14px; color: #666; }
+        .section { 
+          background: white; 
+          padding: 25px; 
+          border-radius: 10px; 
+          margin-bottom: 20px; 
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section h2 { 
+          margin: 0 0 20px 0; 
+          color: #333; 
+          border-bottom: 2px solid #667eea; 
+          padding-bottom: 10px; 
+        }
+        .product-item { 
+          display: flex; 
+          justify-content: space-between; 
+          align-items: center; 
+          padding: 15px; 
+          border: 1px solid #eee; 
+          border-radius: 8px; 
+          margin-bottom: 10px; 
+          background: #fafafa;
+        }
+        .product-info { display: flex; align-items: center; gap: 15px; }
+        .rank { 
+          width: 40px; 
+          height: 40px; 
+          border-radius: 50%; 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          font-weight: bold; 
+          color: white;
+        }
+        .product-details h3 { margin: 0; font-size: 16px; }
+        .product-details p { margin: 5px 0 0 0; color: #666; font-size: 14px; }
+        .revenue { font-weight: bold; color: #10b981; font-size: 16px; }
+        .footer { 
+          text-align: center; 
+          margin-top: 30px; 
+          padding-top: 20px; 
+          border-top: 1px solid #ddd; 
+          color: #666; 
+          font-size: 12px; 
+        }
+        @media print {
+          body { padding: 0; }
+          .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>Overdoze<br>Monthly Performance Report</h1>
+        <p>${formatMonth(report.month, 'long')}</p>
+        <p>Generated on ${formatDate(new Date().toISOString())}</p>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-value">${(report.total_orders || 0).toLocaleString()}</div>
+          <div class="kpi-label">Total Orders</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">${formatCurrency(report.gross_sales)}</div>
+          <div class="kpi-label">Gross Sales</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">${formatCurrency(report.starting_cash)}</div>
+          <div class="kpi-label">Starting Cash</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value" style="color: ${report.profit >= 0 ? '#10b981' : '#ef4444'}">${formatCurrency(report.profit)}</div>
+          <div class="kpi-label">Profit</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Top 3 Products</h2>
+        ${report.top_products && report.top_products.length > 0 ? 
+          report.top_products.map((product, index) => `
+            <div class="product-item">
+              <div class="product-info">
+                <div class="rank" style="background: ${index === 0 ? '#1e40af' : index === 1 ? '#7c3aed' : '#9d174d'}">
+                  ${index + 1}
+                </div>
+                <div class="product-details">
+                  <h3>${product.product_name}</h3>
+                  <p>${(product.total_sold || 0).toLocaleString()} units sold</p>
+                </div>
+              </div>
+              <div class="revenue">${formatCurrency(product.total_revenue)}</div>
+            </div>
+          `).join('')
+          : '<p>No products data available</p>'
+        }
+      </div>
+
+      <div class="footer">
+        <p>Report created by ${report.created_by_name || 'Unknown'} on ${formatDate(report.created_at)}</p>
+        <p>Generated by Overdoze POS System</p>
+      </div>
+    </body>
+    </html>
+  `;
+
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(htmlContent);
+  printWindow.document.close();
+  
+  setTimeout(() => {
+    printWindow.print();
+    printWindow.close();
+  }, 500);
+};

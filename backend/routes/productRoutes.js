@@ -32,7 +32,6 @@ router.get('/:productId/variants', authenticateToken, getProductVariants);
 router.post('/:productId/variants', authenticateToken, requireAdmin, createProductVariant);
 
 
-router.post('/:productId/variants', authenticateToken, requireAdmin, createProductVariant);
 
 // POST create product (admin only)
 router.post('/create-product', authenticateToken, requireAdmin, createProduct);

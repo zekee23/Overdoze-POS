@@ -97,6 +97,10 @@ export const sendPasswordResetEmail = async (email, resetLink) => {
   try {
     const transporter = createTransporter();
     
+    // Verify transporter configuration
+    await transporter.verify();
+    console.log('Email transporter verified successfully');
+    
     const mailOptions = {
       from: process.env.EMAIL_USER || 'johndyrclassic23@gmail.com',
       to: email,
@@ -120,10 +124,18 @@ export const sendPasswordResetEmail = async (email, resetLink) => {
       `
     };
 
-    await transporter.sendMail(mailOptions);
+    const result = await transporter.sendMail(mailOptions);
+    console.log('Password reset email sent successfully to:', email);
+    console.log('Message ID:', result.messageId);
     return true;
   } catch (error) {
     console.error('Error sending password reset email:', error);
+    console.error('Email user:', process.env.EMAIL_USER || 'johndyrclassic23@gmail.com');
+    if (error.code === 'EAUTH') {
+      console.error('Gmail authentication failed. Check your App Password.');
+    } else if (error.code === 'ECONNECTION') {
+      console.error('Connection failed. Check your internet connection.');
+    }
     return false;
   }
 };

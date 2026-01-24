@@ -50,18 +50,22 @@ export default defineConfig({
     target: 'esnext',
   },
   server: {
-  hmr: {
-    // Remove hardcoded port to prevent conflicts
-    overlay: true,
+    hmr: {
+      // Remove hardcoded port to prevent conflicts
+      overlay: true,
+    },
+    headers: {
+      // Only block JS chunks in development, allow other caching
+      'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+    },
+    // Enable filesystem-based caching for faster restarts
+    fs: {
+      strict: false
+    }
   },
-  headers: {
-    // Only block JS chunks in development, allow other caching
-    'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-  }
-},
 
   optimizeDeps: {
-    // Force pre-bundling of React to prevent runtime duplication
+    // Pre-bundle commonly used dependencies for faster development
     include: [
       'react', 
       'react-dom', 
@@ -70,7 +74,7 @@ export default defineConfig({
       '@ant-design/icons',
       'axios'
     ],
-    // Force rebuild to clear any stale cached versions
-    force: true
+    // Only force rebuild when dependencies change
+    force: false
   },
 })

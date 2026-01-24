@@ -513,3 +513,209 @@ export const setMonthlyCash = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
+export const saveMonthlyReport = async (req, res) => {
+    try {
+        const { month } = req.body;
+        
+        if (!month || !/^\d{4}-\d{2}$/.test(month)) {
+            return res.status(400).json({ error: 'Month parameter required in YYYY-MM format' });
+        }
+        
+        const startDate = `${month}-01`;
+        const endDate = new Date(startDate);
+        endDate.setMonth(endDate.getMonth() + 1);
+        const endDateStr = endDate.toISOString().split('T')[0];
+        
+        // Check if month has ended (can only save reports for completed months)
+        const now = new Date();
+        if (endDate > now) {
+            return res.status(400).json({ error: 'Cannot save report for incomplete month' });
+        }
+        
+        // Get monthly dashboard data
+        const dashboardQuery = `
+            WITH monthly_orders AS (
+                SELECT 
+                    COUNT(order_id) AS total_orders,
+                    COALESCE(SUM(total_amount), 0) AS gross_sales
+                FROM orders
+                WHERE created_at >= $1 AND created_at < $2
+            ),
+            monthly_cash_data AS (
+                SELECT 
+                    COALESCE(starting_cash, 0) AS starting_cash
+                FROM monthly_cash
+                WHERE month = DATE_TRUNC('month', $1::date)
+                LIMIT 1
+            ),
+            top_products AS (
+                SELECT 
+                    p.product_name,
+                    SUM(oi.quantity) AS total_sold,
+                    SUM(oi.subtotal) AS total_revenue
+                FROM order_items oi
+                JOIN products p ON oi.product_id = p.product_id
+                JOIN orders o ON oi.order_id = o.order_id
+                WHERE o.created_at >= $1 AND o.created_at < $2
+                GROUP BY p.product_name
+                ORDER BY total_revenue DESC
+                LIMIT 3
+            )
+            SELECT 
+                mo.total_orders,
+                mo.gross_sales,
+                mcd.starting_cash,
+                CASE 
+                    WHEN mcd.starting_cash > 0 
+                    THEN mo.gross_sales - mcd.starting_cash
+                    ELSE 0 
+                END AS profit,
+                COALESCE(
+                    (SELECT JSON_AGG(
+                        JSON_BUILD_OBJECT(
+                            'product_name', tp.product_name,
+                            'total_sold', tp.total_sold,
+                            'total_revenue', tp.total_revenue
+                        )
+                    ) FROM top_products tp), 
+                    '[]'::json
+                ) AS top_products
+            FROM monthly_orders mo
+            CROSS JOIN monthly_cash_data mcd`;
+        
+        const result = await pool.query(dashboardQuery, [startDate, endDateStr]);
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'No data found for the specified month' });
+        }
+        
+        const data = result.rows[0];
+        
+        // Check if starting cash is set
+        if (!data.starting_cash || data.starting_cash <= 0) {
+            return res.status(400).json({ error: 'Starting cash must be set before saving monthly report' });
+        }
+        
+        // Save to monthly_reports table
+        const saveResult = await pool.query(
+            `INSERT INTO monthly_reports (month, total_orders, gross_sales, starting_cash, profit, top_products, created_by)
+             VALUES (DATE_TRUNC('month', $1::date), $2, $3, $4, $5, $6, $7)
+             ON CONFLICT (month) 
+             DO UPDATE SET 
+                 total_orders = EXCLUDED.total_orders,
+                 gross_sales = EXCLUDED.gross_sales,
+                 starting_cash = EXCLUDED.starting_cash,
+                 profit = EXCLUDED.profit,
+                 top_products = EXCLUDED.top_products,
+                 updated_at = NOW()
+             RETURNING *`,
+            [
+                startDate,
+                parseInt(data.total_orders),
+                parseFloat(data.gross_sales),
+                parseFloat(data.starting_cash),
+                parseFloat(data.profit),
+                JSON.stringify(data.top_products),
+                req.userId
+            ]
+        );
+        
+        res.json({
+            message: 'Monthly report saved successfully',
+            data: {
+                id: saveResult.rows[0].id,
+                month: month,
+                total_orders: parseInt(data.total_orders),
+                gross_sales: parseFloat(data.gross_sales),
+                starting_cash: parseFloat(data.starting_cash),
+                profit: parseFloat(data.profit),
+                top_products: data.top_products,
+                created_at: saveResult.rows[0].created_at
+            }
+        });
+        
+    } catch (error) {
+        console.error('ERROR saving monthly report:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+export const getSavedReports = async (req, res) => {
+    try {
+        const { page = 1, limit = 10 } = req.query;
+        const offset = (page - 1) * limit;
+        
+        // Get total count
+        const countResult = await pool.query(
+            'SELECT COUNT(*) as total FROM monthly_reports'
+        );
+        
+        // Get paginated reports with user info
+        const reportsResult = await pool.query(
+            `SELECT 
+                mr.id,
+                TO_CHAR(mr.month, 'YYYY-MM') AS month,
+                mr.total_orders,
+                mr.gross_sales,
+                mr.starting_cash,
+                mr.profit,
+                mr.top_products,
+                mr.pdf_file_path,
+                mr.pdf_generated_at,
+                mr.created_at,
+                mr.updated_at,
+                u.username AS created_by_name
+            FROM monthly_reports mr
+            JOIN user_table u ON mr.created_by = u.uid
+            ORDER BY mr.month DESC
+            LIMIT $1 OFFSET $2`,
+            [limit, offset]
+        );
+        
+        const totalReports = parseInt(countResult.rows[0].total);
+        const totalPages = Math.ceil(totalReports / limit);
+        
+        res.json({
+            reports: reportsResult.rows,
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages: totalPages,
+                totalReports: totalReports,
+                limit: parseInt(limit)
+            }
+        });
+        
+    } catch (error) {
+        console.error('ERROR fetching saved reports:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+export const deleteSavedReport = async (req, res) => {
+    try {
+        const { reportId } = req.params;
+        
+        // Check if report exists
+        const reportExists = await pool.query(
+            'SELECT id, pdf_file_path FROM monthly_reports WHERE id = $1',
+            [reportId]
+        );
+        
+        if (reportExists.rows.length === 0) {
+            return res.status(404).json({ error: 'Report not found' });
+        }
+        
+        // Delete the report
+        await pool.query(
+            'DELETE FROM monthly_reports WHERE id = $1',
+            [reportId]
+        );
+        
+        res.json({ message: 'Report deleted successfully' });
+        
+    } catch (error) {
+        console.error('ERROR deleting saved report:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};

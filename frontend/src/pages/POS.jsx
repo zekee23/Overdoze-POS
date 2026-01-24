@@ -8,11 +8,14 @@ import PerformanceMonitor from '../components/PerformanceMonitor';
 import RemoveModal from "../components/common/removeModal.jsx";
 import ClearCartModal from "../components/common/clearCartModal.jsx";
 import OrderConfirmationModal from '../components/OrderConfirmationModal';
+import StockInputModal from '../components/StockInputModal';
 import '../components/ProductCard.css';
 import './pos.css';
+import '../components/StockInputModal.css';
 import api from '../utils/api';
 import IconButton from '@mui/material/IconButton';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import InventoryIcon from '@mui/icons-material/Inventory';
 import Tooltip from '@mui/material/Tooltip';
 import { getCategoryStyle } from '../constants/categoryStyles';
 import { useCartOperations } from '../hooks/useCartOperations';
@@ -39,17 +42,34 @@ const POS = memo(() => {
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [showClearCartModal, setShowClearCartModal] = useState(false);
   const [showOrderConfirmationModal, setShowOrderConfirmationModal] = useState(false);
+  const [showStockModal, setShowStockModal] = useState(false);
 
   const [removeIndex, setRemoveIndex] = useState(null);
   const [removeName, setRemoveName] = useState("");
 
-  // Memoize expensive calculations
-  const cartSubtotal = useMemo(() => 
-    cart.reduce((sum, item) => sum + item.totalPrice, 0), 
-    [cart]
-  );
+  // Check if user should be prompted for stock input (first login of the day)
+  const checkStockInputPrompt = useCallback(() => {
+    const lastStockPrompt = localStorage.getItem('lastStockPrompt');
+    const today = new Date().toDateString();
+    
+    // If no prompt today, show the stock modal
+    if (lastStockPrompt !== today) {
+      setTimeout(() => {
+        setShowStockModal(true);
+        localStorage.setItem('lastStockPrompt', today);
+      }, 2000); // Show after 2 seconds
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!loading && user) {
+      checkStockInputPrompt();
+    }
+  }, [loading, user, checkStockInputPrompt]);
   
-  const cartTotal = useMemo(() => cartSubtotal, [cartSubtotal]);
+  const cartTotal = useMemo(() => {
+    return cart.reduce((total, item) => total + (item.totalPrice || 0), 0);
+  }, [cart]);
 
   const filteredProducts = useMemo(() => {
     if (selectedCategory === 0) return products;
@@ -424,6 +444,14 @@ const cancelOrder = () => {
       <header className="pos-navbar">
         <div className="nav-left">
           <h1 className="app-title">Overdoze POS</h1>
+          <Tooltip title="Daily Stock Input">
+            <IconButton 
+              className="nav-button stock-button" 
+              onClick={() => setShowStockModal(true)}
+            >
+              <InventoryIcon />
+            </IconButton>
+          </Tooltip>
           <span className="location">Lopez, Quezon</span>
         </div>
         <div className="nav-right">
@@ -629,6 +657,15 @@ const cancelOrder = () => {
         onConfirm={confirmOrder}
         cart={cart}
         cartTotal={cartTotal}
+      />
+
+      {/* Stock Input Modal */}
+      <StockInputModal
+        isOpen={showStockModal}
+        onClose={() => setShowStockModal(false)}
+        onStockAdded={(results) => {
+          console.log('Stock added:', results);
+        }}
       />
     </div>
   );

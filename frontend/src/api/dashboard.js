@@ -28,5 +28,60 @@ export const dashboardAPI = {
       starting_cash: startingCash
     });
     return response.data;
+  },
+
+  // Monthly Reports Management
+  saveMonthlyReport: async (month) => {
+    const response = await api.post('/dashboard/reports/save', {
+      month
+    });
+    return response.data;
+  },
+
+  getSavedReports: async (page = 1, limit = 10) => {
+    const response = await api.get('/dashboard/reports', {
+      params: { page, limit }
+    });
+    return response.data;
+  },
+
+  deleteSavedReport: async (reportId) => {
+    const response = await api.delete(`/dashboard/reports/${reportId}`);
+    return response.data;
+  },
+
+  // PDF Report Management
+  generateMonthlyPDF: async (month) => {
+    const response = await api.post('/dashboard/reports/generate-pdf', {
+      month
+    });
+    return response.data;
+  },
+
+  downloadMonthlyPDF: async (month) => {
+    const response = await api.get('/dashboard/reports/download-pdf', {
+      params: { month },
+      responseType: 'blob'
+    });
+    
+    // Create download link
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `monthly-report-${month}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
+
+  getGeneratedReports: async () => {
+    const response = await api.get('/dashboard/reports/list');
+    return response.data;
+  },
+
+  deleteGeneratedReport: async (reportId) => {
+    const response = await api.delete(`/dashboard/reports/${reportId}`);
+    return response.data;
   }
 };
