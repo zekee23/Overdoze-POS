@@ -118,10 +118,21 @@ setToast({
 });
         fetchUsers();
       } else {
-        // For creating new users, you might need to add a create endpoint
-        message.success('User creation feature coming soon!');
+        // Create new user
+        await api.post('/dashboard/users', {
+          username: values.username,
+          full_name: values.full_name,
+          u_role: 'cashier' // Always create as cashier
+        });
+        message.success('Cashier created successfully!');
         setModalVisible(false);
         form.resetFields();
+        setToast({
+          open: true,
+          message: 'Cashier Created successfully!',
+          severity: 'success'
+        });
+        fetchUsers();
       }
     } catch (error) {
       message.error(`Failed to ${editingUser ? 'update' : 'create'} user`);
@@ -373,6 +384,21 @@ setToast({
           extra={
             <Space>
               <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={handleCreate}
+                style={{ 
+                  backgroundColor: '#10b981', 
+                  borderColor: '#10b981',
+                  fontWeight: 500,
+                  borderRadius: '6px',
+                  boxShadow: '0 2px 4px rgba(16, 185, 129, 0.3)',
+                  color: '#ffffff'
+                }}
+              >
+                Create Cashier
+              </Button>
+              <Button
                 icon={<ReloadOutlined />}
                 onClick={fetchUsers}
                 loading={loading}
@@ -410,7 +436,7 @@ setToast({
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {editingUser ? <EditOutlined style={{ color: '#3b82f6', fontSize: '18px' }} /> : <PlusOutlined style={{ color: '#10b981', fontSize: '18px' }} />}
               <span style={{ color: '#f3f4f6', fontSize: '16px', fontWeight: 'bold' }}>
-                {editingUser ? 'Edit User' : 'Create New User'}
+                {editingUser ? 'Edit User' : 'Create New Cashier'}
               </span>
             </div>
           }
@@ -456,7 +482,7 @@ setToast({
           >
             <Form.Item
               name="username"
-              label="Username"
+              label={<span style={{ color: '#f3f4f6' }}>Username</span>}
               rules={[{ required: true, message: 'Please enter username' }]}
             >
               <Input placeholder="Enter username" style={{ backgroundColor: '#374151', borderColor: '#4b5563', color: '#f3f4f6', borderRadius: '6px' }} />
@@ -464,7 +490,7 @@ setToast({
 
             <Form.Item
               name="full_name"
-              label="Full Name"
+              label={<span style={{ color: '#f3f4f6' }}>Full Name</span>}
               rules={[{ required: true, message: 'Please enter full name' }]}
             >
               <Input placeholder="Enter full name" style={{ backgroundColor: '#374151', borderColor: '#4b5563', color: '#f3f4f6', borderRadius: '6px' }} />
@@ -487,7 +513,7 @@ setToast({
                   loading={submitting}
                   style={{ backgroundColor: editingUser ? '#3b82f6' : '#10b981', borderColor: editingUser ? '#3b82f6' : '#10b981' }}
                 >
-                  {editingUser ? 'Update User' : 'Create User'}
+                  {editingUser ? 'Update User' : 'Create Cashier'}
                 </Button>
               </Space>
             </Form.Item>

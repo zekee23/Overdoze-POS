@@ -19,6 +19,8 @@ import dailyStockRoutes from './routes/dailyStockRoutes.js';
 import dailyReportsRoutes from './routes/dailyReportsRoutes.js';
 import cashDrawerRoutes from './routes/cashDrawerRoutes.js';
 
+import cleanupOldOrders from './scripts/cleanupOldOrders.js';
+
 dotenv.config();
 
 const app = express();

@@ -195,6 +195,123 @@ export const getOrders = async (req, res) => {
   }
 };
 
+export const deleteOrdersByMonth = async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { month, year } = req.body;
+    
+    if (!month || !year) {
+      return res.status(400).json({ error: 'Month and year are required' });
+    }
+
+    await client.query('BEGIN');
+
+    // Delete orders and related data for the specified month
+    const deleteResult = await client.query(`
+      DELETE FROM orders 
+      WHERE EXTRACT(MONTH FROM created_at) = $1 
+      AND EXTRACT(YEAR FROM created_at) = $2
+      RETURNING order_id
+    `, [month, year]);
+
+    const deletedCount = deleteResult.rowCount;
+
+    await client.query('COMMIT');
+
+    res.json({ 
+      success: true, 
+      message: `Deleted ${deletedCount} orders for ${year}-${month.toString().padStart(2, '0')}`,
+      deletedCount 
+    });
+
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('DELETE ORDERS BY MONTH ERROR:', err);
+    res.status(500).json({ 
+      error: 'Failed to delete orders',
+      message: err.message 
+    });
+  } finally {
+    client.release();
+  }
+};
+
+export const deleteOldOrders = async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Delete orders older than 2 months
+    const deleteResult = await client.query(`
+      DELETE FROM orders 
+      WHERE created_at < NOW() - INTERVAL '2 months'
+      RETURNING order_id
+    `);
+
+    const deletedCount = deleteResult.rowCount;
+
+    await client.query('COMMIT');
+
+    res.json({ 
+      success: true, 
+      message: `Deleted ${deletedCount} orders older than 2 months`,
+      deletedCount 
+    });
+
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('DELETE OLD ORDERS ERROR:', err);
+    res.status(500).json({ 
+      error: 'Failed to delete old orders',
+      message: err.message 
+    });
+  } finally {
+    client.release();
+  }
+};
+
+export const deleteOrderById = async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { id } = req.params;
+    
+    if (!id) {
+      return res.status(400).json({ error: 'Order ID is required' });
+    }
+
+    await client.query('BEGIN');
+
+    // Delete the specific order (related records will be deleted due to foreign key constraints)
+    const deleteResult = await client.query(`
+      DELETE FROM orders 
+      WHERE order_id = $1
+      RETURNING order_id
+    `, [id]);
+
+    if (deleteResult.rowCount === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    await client.query('COMMIT');
+
+    res.json({ 
+      success: true, 
+      message: `Order ${id} deleted successfully`
+    });
+
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('DELETE ORDER BY ID ERROR:', err);
+    res.status(500).json({ 
+      error: 'Failed to delete order',
+      message: err.message 
+    });
+  } finally {
+    client.release();
+  }
+};
+
 export const getOrderById = async (req, res) => {
   try {
     const { id } = req.params;

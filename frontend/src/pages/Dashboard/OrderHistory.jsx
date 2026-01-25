@@ -21,7 +21,8 @@ import {
   DollarCircleOutlined,
   ShoppingOutlined,
   CloseOutlined,
-  LogoutOutlined
+  LogoutOutlined,
+  DeleteOutlined
 } from '@ant-design/icons';
 
 import OverlaySidebar from '../../components/OverlaySidebar';
@@ -45,6 +46,11 @@ const OrderHistory = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orderItems, setOrderItems] = useState([]);
   const [orderItemsLoading, setOrderItemsLoading] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [singleOrderId, setSingleOrderId] = useState(null);
+  const [singleDeleteModalVisible, setSingleDeleteModalVisible] = useState(false);
 
 
   const [pagination, setPagination] = useState({
@@ -77,6 +83,77 @@ const OrderHistory = () => {
     setOrderModalVisible(false);
     setSelectedOrder(null);
     setOrderItems([]);
+  };
+
+  const handleDeleteClick = (target) => {
+    setDeleteTarget(target);
+    setDeleteModalVisible(true);
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteModalVisible(false);
+    setDeleteTarget(null);
+  };
+
+  const handleDeleteOrder = (orderId) => {
+    setSingleOrderId(orderId);
+    setSingleDeleteModalVisible(true);
+  };
+
+  const handleSingleDeleteConfirm = async () => {
+    try {
+      setDeleteLoading(true);
+      await api.delete(`/orders/${singleOrderId}`);
+      message.success('Order deleted successfully');
+      setSingleDeleteModalVisible(false);
+      setSingleOrderId(null);
+      
+      // Refresh the data
+      await fetchOrderHistory(pagination.currentPage, selectedMonth);
+      await fetchPeakHours();
+    } catch (error) {
+      console.error('Delete order error:', error);
+      message.error(error.response?.data?.error || 'Failed to delete order');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleSingleDeleteCancel = () => {
+    setSingleDeleteModalVisible(false);
+    setSingleOrderId(null);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      setDeleteLoading(true);
+      
+      let response;
+      if (deleteTarget === 'old') {
+        response = await api.delete('/orders/old');
+      } else if (deleteTarget === 'this' || deleteTarget === 'last') {
+        const now = new Date();
+        const targetDate = deleteTarget === 'this' ? now : new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const month = targetDate.getMonth() + 1;
+        const year = targetDate.getFullYear();
+        
+        response = await api.delete('/orders/by-month', { data: { month, year } });
+      }
+
+      message.success(response.data.message);
+      setDeleteModalVisible(false);
+      setDeleteTarget(null);
+      
+      // Refresh the data
+      await fetchOrderHistory(1, selectedMonth);
+      await fetchPeakHours();
+      
+    } catch (error) {
+      console.error('Delete error:', error);
+      message.error(error.response?.data?.error || 'Failed to delete orders');
+    } finally {
+      setDeleteLoading(false);
+    }
   };
     const fetchOrderHistory = async (page = 1, month = selectedMonth) => {
     try {
@@ -221,18 +298,34 @@ const formatToStandardTime = (hour) => {
     title: 'Action',
     key: 'action',
     render: (_, record) => (
-      <Button
-        size="small"
-        onClick={() => handleViewOrder(record)}
-        style={{ 
-          backgroundColor: '#3b82f6', 
-          borderColor: '#3b82f6',
-          color: '#fff',
-          fontWeight: 500
-        }}
-      >
-        View
-      </Button>
+      <Space size="small">
+        <Button
+          size="small"
+          onClick={() => handleViewOrder(record)}
+          style={{ 
+            backgroundColor: '#3b82f6', 
+            borderColor: '#3b82f6',
+            color: '#fff',
+            fontWeight: 500
+          }}
+        >
+          View
+        </Button>
+        <Button
+          danger
+          size="small"
+          icon={<DeleteOutlined />}
+          onClick={() => handleDeleteOrder(record.order_id)}
+          style={{ 
+            backgroundColor: '#dc2626', 
+            borderColor: '#dc2626',
+            color: '#fff',
+            fontWeight: 500
+          }}
+        >
+          Delete
+        </Button>
+      </Space>
     )
   }
 ];
@@ -432,43 +525,77 @@ const formatToStandardTime = (hour) => {
           borderRadius: '12px',
           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
         }}>
-          <div style={{ marginBottom: '16px' }}>
-            <Text strong style={{ color: '#f3f4f6', fontSize: '16px' }}>
-              Filter by Month:
-            </Text>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+            <div>
+              <Text strong style={{ color: '#f3f4f6', fontSize: '16px', marginBottom: '8px', display: 'block' }}>
+                Filter by Month:
+              </Text>
+              <Space size={[8, 8]}>
+                <Button
+                  type={selectedMonth === null ? 'primary' : 'default'}
+                  onClick={() => handleMonthChange(null)}
+                  style={selectedMonth === null 
+                    ? { backgroundColor: '#3b82f6', borderColor: '#3b82f6' } 
+                    : { backgroundColor: '#374151', borderColor: '#4b5563', color: '#f3f4f6' }
+                  }
+                >
+                  All
+                </Button>
+                <Button
+                  type={selectedMonth === 'this' ? 'primary' : 'default'}
+                  onClick={() => handleMonthChange('this')}
+                  style={selectedMonth === 'this' 
+                    ? { backgroundColor: '#3b82f6', borderColor: '#3b82f6' } 
+                    : { backgroundColor: '#374151', borderColor: '#4b5563', color: '#f3f4f6' }
+                  }
+                >
+                  This Month
+                </Button>
+                <Button
+                  type={selectedMonth === 'last' ? 'primary' : 'default'}
+                  onClick={() => handleMonthChange('last')}
+                  style={selectedMonth === 'last' 
+                    ? { backgroundColor: '#3b82f6', borderColor: '#3b82f6' } 
+                    : { backgroundColor: '#374151', borderColor: '#4b5563', color: '#f3f4f6' }
+                  }
+                >
+                  Last Month
+                </Button>
+              </Space>
+            </div>
+            
+            <div>
+              <Text strong style={{ color: '#f3f4f6', fontSize: '16px', marginBottom: '8px', display: 'block' }}>
+                Delete Orders:
+              </Text>
+              <Space size={[8, 8]}>
+                <Button
+                  danger
+                  icon={<DeleteOutlined />}
+                  onClick={() => handleDeleteClick('this')}
+                  style={{ backgroundColor: '#dc2626', borderColor: '#dc2626', color: '#fff' }}
+                >
+                  Delete This Month
+                </Button>
+                <Button
+                  danger
+                  icon={<DeleteOutlined />}
+                  onClick={() => handleDeleteClick('last')}
+                  style={{ backgroundColor: '#dc2626', borderColor: '#dc2626', color: '#fff' }}
+                >
+                  Delete Last Month
+                </Button>
+                <Button
+                  danger
+                  icon={<DeleteOutlined />}
+                  onClick={() => handleDeleteClick('old')}
+                  style={{ backgroundColor: '#dc2626', borderColor: '#dc2626', color: '#fff' }}
+                >
+                  Delete Orders Older Than 2 Months
+                </Button>
+              </Space>
+            </div>
           </div>
-          <Space size={[8, 8]}>
-            <Button
-              type={selectedMonth === null ? 'primary' : 'default'}
-              onClick={() => handleMonthChange(null)}
-              style={selectedMonth === null 
-                ? { backgroundColor: '#3b82f6', borderColor: '#3b82f6' } 
-                : { backgroundColor: '#374151', borderColor: '#4b5563', color: '#f3f4f6' }
-              }
-            >
-              All
-            </Button>
-            <Button
-              type={selectedMonth === 'this' ? 'primary' : 'default'}
-              onClick={() => handleMonthChange('this')}
-              style={selectedMonth === 'this' 
-                ? { backgroundColor: '#3b82f6', borderColor: '#3b82f6' } 
-                : { backgroundColor: '#374151', borderColor: '#4b5563', color: '#f3f4f6' }
-              }
-            >
-              This Month
-            </Button>
-            <Button
-              type={selectedMonth === 'last' ? 'primary' : 'default'}
-              onClick={() => handleMonthChange('last')}
-              style={selectedMonth === 'last' 
-                ? { backgroundColor: '#3b82f6', borderColor: '#3b82f6' } 
-                : { backgroundColor: '#374151', borderColor: '#4b5563', color: '#f3f4f6' }
-              }
-            >
-              Last Month
-            </Button>
-          </Space>
         </Card>
 
       {/* Table */}
@@ -711,6 +838,181 @@ const formatToStandardTime = (hour) => {
             </div>
           </div>
         )}
+      </Modal>
+
+      {/* Single Order Delete Confirmation Modal */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <DeleteOutlined style={{ fontSize: '18px', color: '#dc2626' }} />
+            <span style={{ color: '#f3f4f6', fontSize: '16px', fontWeight: 'bold' }}>
+              Delete Order #{singleOrderId}
+            </span>
+          </div>
+        }
+        open={singleDeleteModalVisible}
+        onCancel={handleSingleDeleteCancel}
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+            <Button onClick={handleSingleDeleteCancel}>
+              Cancel
+            </Button>
+            <Button
+              danger
+              loading={deleteLoading}
+              onClick={handleSingleDeleteConfirm}
+              style={{ backgroundColor: '#dc2626', borderColor: '#dc2626' }}
+            >
+              Delete Order
+            </Button>
+          </div>
+        }
+        width={400}
+        centered
+        closable={true}
+        styles={{
+          body: { 
+            backgroundColor: '#0f172a', 
+            color: '#f3f4f6', 
+            padding: '20px'
+          },
+          header: { 
+            backgroundColor: '#0f172a', 
+            borderBottom: '1px solid #374151',
+            borderRadius: '8px 8px 0 0',
+            padding: '16px 20px'
+          },
+          content: { 
+            backgroundColor: '#0f172a', 
+            color: '#f3f4f6',
+            borderRadius: '8px',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            border: '1px solid #374151'
+          },
+          mask: { 
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            backdropFilter: 'blur(4px)'
+          }
+        }}
+        wrapClassName="dark-modal-wrapper"
+        zIndex={1000}
+      >
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            backgroundColor: '#dc2626',
+            borderRadius: '50%',
+            width: '48px',
+            height: '48px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 16px'
+          }}>
+            <DeleteOutlined style={{ fontSize: '24px', color: '#fff' }} />
+          </div>
+          
+          <Text style={{ color: '#f3f4f6', fontSize: '16px', display: 'block', marginBottom: '8px' }}>
+            Are you sure you want to delete this order?
+          </Text>
+          
+          <Text style={{ color: '#9ca3af', fontSize: '14px', display: 'block', marginBottom: '16px' }}>
+            This will permanently delete order #{singleOrderId} and all its associated data.
+          </Text>
+          
+          <Text style={{ color: '#dc2626', fontSize: '12px', display: 'block' }}>
+            This action cannot be undone.
+          </Text>
+        </div>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <DeleteOutlined style={{ fontSize: '18px', color: '#dc2626' }} />
+            <span style={{ color: '#f3f4f6', fontSize: '16px', fontWeight: 'bold' }}>
+              Confirm Deletion
+            </span>
+          </div>
+        }
+        open={deleteModalVisible}
+        onCancel={handleDeleteCancel}
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+            <Button onClick={handleDeleteCancel}>
+              Cancel
+            </Button>
+            <Button
+              danger
+              loading={deleteLoading}
+              onClick={handleDeleteConfirm}
+              style={{ backgroundColor: '#dc2626', borderColor: '#dc2626' }}
+            >
+              Delete
+            </Button>
+          </div>
+        }
+        width={400}
+        centered
+        closable={true}
+        styles={{
+          body: { 
+            backgroundColor: '#0f172a', 
+            color: '#f3f4f6', 
+            padding: '20px'
+          },
+          header: { 
+            backgroundColor: '#0f172a', 
+            borderBottom: '1px solid #374151',
+            borderRadius: '8px 8px 0 0',
+            padding: '16px 20px'
+          },
+          content: { 
+            backgroundColor: '#0f172a', 
+            color: '#f3f4f6',
+            borderRadius: '8px',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            border: '1px solid #374151'
+          },
+          mask: { 
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            backdropFilter: 'blur(4px)'
+          }
+        }}
+        wrapClassName="dark-modal-wrapper"
+        zIndex={1000}
+      >
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            backgroundColor: '#dc2626',
+            borderRadius: '50%',
+            width: '48px',
+            height: '48px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 16px'
+          }}>
+            <DeleteOutlined style={{ fontSize: '24px', color: '#fff' }} />
+          </div>
+          
+          <Text style={{ color: '#f3f4f6', fontSize: '16px', display: 'block', marginBottom: '8px' }}>
+            Are you sure you want to delete these orders?
+          </Text>
+          
+          <Text style={{ color: '#9ca3af', fontSize: '14px', display: 'block', marginBottom: '16px' }}>
+            {deleteTarget === 'old' 
+              ? 'This will permanently delete all orders older than 2 months.'
+              : deleteTarget === 'this'
+              ? 'This will permanently delete all orders from this month.'
+              : 'This will permanently delete all orders from last month.'
+            }
+          </Text>
+          
+          <Text style={{ color: '#dc2626', fontSize: '12px', display: 'block' }}>
+            This action cannot be undone.
+          </Text>
+        </div>
       </Modal>
     </div>
   );

@@ -2,7 +2,7 @@ import express from 'express';
 import { getDashboard, getPOS } from '../controllers/dashboardcontroller.js';
 import { authenticateToken, requireAdmin, requireCashier } from '../middleware/auth.js';
 import { productsRefreshProtection } from '../middleware/arcjet.js';
-import { getHomeData, getStock, setStockStatus,setStockStatusActive, getOrderHistory, getPeakHours,getUser,editUser, deleteUser,getMonthlyOrderSummary,getTop3ProductsPerMonth, getMonthlyDashboard, setMonthlyCash, saveMonthlyReport, getSavedReports, deleteSavedReport } from '../controllers/dashboardController/dashboard.queries.js';
+import { getHomeData, getStock, setStockStatus,setStockStatusActive, getOrderHistory, getPeakHours,getUser,createUser,editUser, deleteUser,getMonthlyOrderSummary,getTop3ProductsPerMonth, getMonthlyDashboard, setMonthlyCash, saveMonthlyReport, getSavedReports, deleteSavedReport } from '../controllers/dashboardController/dashboard.queries.js';
 import { getProductsWithVariants, createProduct,createProductVariant,deleteProduct,updateProduct, refreshProducts } from '../controllers/productController.js';
 const router = express.Router();
 
@@ -24,6 +24,7 @@ router.delete('/products/:productId', authenticateToken, requireAdmin, deletePro
 router.post('/products/:productId/variants', authenticateToken, requireAdmin, createProductVariant);
 router.put('/update-product/:productId', authenticateToken, requireAdmin, updateProduct)
 router.get('/users', authenticateToken, requireAdmin, getUser);
+router.post('/users', authenticateToken, requireAdmin, createUser);
 router.put('/users/:uid', authenticateToken, requireAdmin, editUser);
 router.delete('/users/:uid', authenticateToken, requireAdmin, deleteUser);
 router.put('/restock/:id', authenticateToken, requireAdmin, setStockStatusActive);

@@ -252,7 +252,6 @@ export const getPeakHours = async(req,res) =>
         console.log("ERROR FETCHING PEAK HOURS: ", error);
         res.status(500).json({error:"INTERNAL SERVER ERROR"})
     }
-    
 }
 
 export const getUser = async(req, res)=>
@@ -266,6 +265,43 @@ export const getUser = async(req, res)=>
     } catch (error) {
         console.log('ERROR fetching users: ', error);
         res.status(500).json({error:"Internal Server Error"})
+    }
+}
+
+export const createUser = async(req, res) => {
+    try {
+        const { username, full_name, u_role = 'cashier' } = req.body;
+        
+        // Validate required fields
+        if (!username || !full_name) {
+            return res.status(400).json({ error: 'Username and full name are required' });
+        }
+        
+        // Check if username already exists
+        const existingUser = await pool.query(
+            'SELECT uid FROM user_table WHERE username = $1',
+            [username]
+        );
+        
+        if (existingUser.rows.length > 0) {
+            return res.status(400).json({ error: 'Username already exists' });
+        }
+        
+        // Create new user
+        const result = await pool.query(
+            `INSERT INTO user_table (username, full_name, u_role, created_at) 
+             VALUES ($1, $2, $3, CURRENT_TIMESTAMP) 
+             RETURNING uid, username, full_name, u_role, created_at`,
+            [username, full_name, u_role]
+        );
+        
+        res.status(201).json({ 
+            message: 'User created successfully',
+            user: result.rows[0]
+        });
+    } catch (error) {
+        console.log('ERROR creating user: ', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 }
 
