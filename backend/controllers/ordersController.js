@@ -241,21 +241,86 @@ export const deleteOldOrders = async (req, res) => {
   try {
     await client.query('BEGIN');
 
-    // Delete orders older than 2 months
-    const deleteResult = await client.query(`
-      DELETE FROM orders 
-      WHERE created_at < NOW() - INTERVAL '2 months'
-      RETURNING order_id
-    `);
+    // Get current date and calculate cutoff date (start of last month)
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth(); // 0-11 (0 = January)
+    
+    // Calculate cutoff: start of last month
+    // If current is Feb 2026 (month 1), we want to keep Feb 2026 + Jan 2026, so cutoff is Jan 1, 2026
+    // If current is Mar 2026 (month 2), we want to keep Mar 2026 + Feb 2026, so cutoff is Feb 1, 2026
+    const cutoffYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+    const cutoffMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+    const cutoffDate = new Date(cutoffYear, cutoffMonth, 1);
 
-    const deletedCount = deleteResult.rowCount;
+    console.log(`Current: ${now.toLocaleDateString()}, Cutoff: ${cutoffDate.toLocaleDateString()}`);
+    console.log(`Deleting orders created before: ${cutoffDate.toISOString()}`);
+
+    // 1. First, check what would be deleted
+    const checkResult = await client.query(`
+      SELECT COUNT(*) as count_to_delete
+      FROM orders 
+      WHERE created_at < $1
+    `, [cutoffDate]);
+    
+    const ordersToDelete = checkResult.rows[0].count_to_delete;
+    console.log(`Found ${ordersToDelete} orders to delete`);
+
+    if (ordersToDelete == 0) {
+      await client.query('ROLLBACK');
+      return res.json({ 
+        success: true, 
+        message: 'No orders found to delete (only current and last month data kept)',
+        deletedCount: 0,
+        cutoffDate: cutoffDate.toISOString()
+      });
+    }
+
+    // 2. Delete from order_item_addons (child table)
+    const deleteAddonsResult = await client.query(`
+      DELETE FROM order_item_addons 
+      WHERE order_item_id IN (
+        SELECT oi.order_item_id
+        FROM order_items oi
+        JOIN orders o ON oi.order_id = o.order_id
+        WHERE o.created_at < $1
+      )
+    `, [cutoffDate]);
+
+    // 3. Delete from order_items (middle table)
+    const deleteItemsResult = await client.query(`
+      DELETE FROM order_items 
+      WHERE order_id IN (
+        SELECT order_id FROM orders WHERE created_at < $1
+      )
+    `, [cutoffDate]);
+
+    // 4. Finally, delete from orders (parent table)
+    const deleteOrdersResult = await client.query(`
+      DELETE FROM orders 
+      WHERE created_at < $1
+      RETURNING order_id, created_at
+    `, [cutoffDate]);
 
     await client.query('COMMIT');
 
+    const deletedCount = deleteOrdersResult.rowCount;
+    const deletedOrders = deleteOrdersResult.rows;
+
     res.json({ 
       success: true, 
-      message: `Deleted ${deletedCount} orders older than 2 months`,
-      deletedCount 
+      message: `Deleted ${deletedCount} orders older than ${cutoffDate.toLocaleDateString()} (kept current and last month data)`,
+      deletedCount,
+      deletedOrders: deletedOrders.map(order => ({
+        order_id: order.order_id,
+        created_at: order.created_at
+      })),
+      cutoffDate: cutoffDate.toISOString(),
+      summary: {
+        addonsDeleted: deleteAddonsResult.rowCount,
+        itemsDeleted: deleteItemsResult.rowCount,
+        ordersDeleted: deletedCount
+      }
     });
 
   } catch (err) {

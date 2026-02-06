@@ -29,7 +29,10 @@ const PORT = process.env.PORT || 3000;
 console.log("PORT:", PORT);
 
 app.use(express.json()); //middleware to parse JSON bodies
-app.use(cors()); //middleware to enable CORS
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://0.0.0.0:5173', /^http:\/\/192\.168\.\d+\.\d+:5173$/, /^http:\/\/10\.\d+\.\d+\.\d+:5173$/, /^http:\/\/172\.(1[6-9]|2[0-9]|3[01])\.\d+\.\d+:5173$/],
+  credentials: true
+}));
 app.use(helmet()); //helmet helps secure Express apps by setting various HTTP headers
 app.use(morgan("dev")); //morgan is HTTP request logger middleware for node.js
 
@@ -67,6 +70,8 @@ app.use('/api', dailyStockRoutes);
 app.use('/api', dailyReportsRoutes);
 app.use('/api/cash-drawer', cashDrawerRoutes);
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log("Server is running on port " + PORT);
+    console.log("Local access: http://localhost:" + PORT);
+    console.log("Network access: http://0.0.0.0:" + PORT);
 });

@@ -7,8 +7,8 @@ const router = express.Router();
 router.post('/orders',authenticateToken , createOrder);
 router.get('/orders', authenticateToken, getOrders);
 router.get('/orders/:id', authenticateToken, getOrderById);
-router.delete('/orders/:id', authenticateToken, deleteOrderById);
 router.delete('/orders/by-month', authenticateToken, deleteOrdersByMonth);
 router.delete('/orders/old', authenticateToken, deleteOldOrders);
+router.delete('/orders/:id', authenticateToken, deleteOrderById);
 
 export default router;

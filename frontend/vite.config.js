@@ -50,6 +50,8 @@ export default defineConfig({
     target: 'esnext',
   },
   server: {
+    host: '0.0.0.0',
+    port: 5173,
     hmr: {
       // Remove hardcoded port to prevent conflicts
       overlay: true,
