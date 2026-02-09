@@ -1,9 +1,10 @@
 import express from 'express';
-import { getDashboard, getPOS } from '../controllers/dashboardcontroller.js';
+import { getDashboard, getPOS, getPaymentMethodStats } from '../controllers/dashboardController.js';
 import { authenticateToken, requireAdmin, requireCashier } from '../middleware/auth.js';
 import { productsRefreshProtection } from '../middleware/arcjet.js';
 import { getHomeData, getStock, setStockStatus,setStockStatusActive, getOrderHistory, getPeakHours,getUser,createUser,editUser, deleteUser,getMonthlyOrderSummary,getTop3ProductsPerMonth, getMonthlyDashboard, setMonthlyCash, saveMonthlyReport, getSavedReports, deleteSavedReport } from '../controllers/dashboardController/dashboard.queries.js';
 import { getProductsWithVariants, createProduct,createProductVariant,deleteProduct,updateProduct, refreshProducts } from '../controllers/productController.js';
+import { getCupStock, addCupStock, updateStock } from '../controllers/cupStockController.js';
 const router = express.Router();
 
 // Admin dashboard
@@ -43,5 +44,13 @@ router.post('/admin/monthly-cash', authenticateToken, requireAdmin, setMonthlyCa
 router.post('/reports/save', authenticateToken, requireAdmin, saveMonthlyReport);
 router.get('/reports', authenticateToken, requireAdmin, getSavedReports);
 router.delete('/reports/:reportId', authenticateToken, requireAdmin, deleteSavedReport);
+
+// Payment method statistics
+router.get('/payment-stats', authenticateToken, requireAdmin, getPaymentMethodStats);
+
+// Cup stock management
+router.get('/cup-stock', authenticateToken, requireAdmin, getCupStock);
+router.post('/cup-stock/add', authenticateToken, requireAdmin, addCupStock);
+router.put('/cup-stock/update', authenticateToken, requireAdmin, updateStock);
 
 export default router;

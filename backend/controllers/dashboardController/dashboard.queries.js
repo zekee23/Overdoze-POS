@@ -134,10 +134,11 @@ export const setStockStatusActive = async(req,res) =>
 export const getOrderHistory = async(req,res) =>
 {
     try {
-        const { month, page = 1, limit = 10 } = req.query; // 'this' or 'last', pagination params
+        const { month, page = 1, limit = 10, payment_method } = req.query; // 'this' or 'last', pagination params, payment_method filter
         const offset = (page - 1) * limit;
         
         let dateCondition;
+        let paymentCondition = '';
 
 if (month === 'this') {
   dateCondition = `
@@ -156,10 +157,14 @@ if (month === 'this') {
   `;
 }
 
-        
+// Add payment method condition if specified
+if (payment_method && payment_method !== 'all') {
+  paymentCondition = `AND o.payment_method = '${payment_method}'`;
+}
+
         // Get total count for pagination
         const countResult = await pool.query(
-            `SELECT COUNT(*) as total FROM orders o WHERE ${dateCondition}`
+            `SELECT COUNT(*) as total FROM orders o WHERE ${dateCondition} ${paymentCondition}`
         );
         
         // Get paginated orders
@@ -168,11 +173,12 @@ if (month === 'this') {
   SELECT 
     o.order_id,
     o.total_amount,
+    o.payment_method,
     u.full_name AS cashier_name,
     o.created_at
   FROM orders o
   JOIN user_table u ON o.cashier_id = u.uid
-  WHERE ${dateCondition}
+  WHERE ${dateCondition} ${paymentCondition}
   ORDER BY o.created_at DESC
   LIMIT $1 OFFSET $2
   `,

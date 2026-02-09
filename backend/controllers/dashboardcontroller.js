@@ -41,3 +41,88 @@ export const getPOS = async (req,res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+export const getPaymentMethodStats = async (req, res) => {
+  try {
+    const { period = 'today' } = req.query;
+    
+    let dateFilter = '';
+    
+    switch (period) {
+      case 'today':
+        dateFilter = `DATE(o.created_at) = CURRENT_DATE`;
+        break;
+      case 'week':
+        dateFilter = `o.created_at >= CURRENT_DATE - INTERVAL '7 days'`;
+        break;
+      case 'month':
+        dateFilter = `o.created_at >= DATE_TRUNC('month', CURRENT_DATE)`;
+        break;
+      case 'year':
+        dateFilter = `o.created_at >= DATE_TRUNC('year', CURRENT_DATE)`;
+        break;
+      default:
+        dateFilter = `DATE(o.created_at) = CURRENT_DATE`;
+    }
+
+    const query = `
+      SELECT 
+        payment_method,
+        COUNT(*) as order_count,
+        COALESCE(SUM(total_amount), 0) as total_amount,
+        ROUND(COALESCE(SUM(total_amount), 0), 2) as formatted_amount
+      FROM orders o
+      WHERE ${dateFilter}
+      AND o.payment_method IS NOT NULL
+      GROUP BY payment_method
+      ORDER BY payment_method
+    `;
+
+    const result = await pool.query(query);
+    
+    // Initialize default values
+    let cashTotal = 0;
+    let gcashTotal = 0;
+    let cashOrders = 0;
+    let gcashOrders = 0;
+
+    // Process results
+    result.rows.forEach(row => {
+      if (row.payment_method === 'cash') {
+        cashTotal = parseFloat(row.total_amount);
+        cashOrders = parseInt(row.order_count);
+      } else if (row.payment_method === 'gcash') {
+        gcashTotal = parseFloat(row.total_amount);
+        gcashOrders = parseInt(row.order_count);
+      }
+    });
+
+    const totalRevenue = cashTotal + gcashTotal;
+    const totalOrders = cashOrders + gcashOrders;
+
+    res.json({
+      period,
+      cash: {
+        amount: cashTotal,
+        orders: cashOrders,
+        percentage: totalRevenue > 0 ? ((cashTotal / totalRevenue) * 100).toFixed(1) : '0.0'
+      },
+      gcash: {
+        amount: gcashTotal,
+        orders: gcashOrders,
+        percentage: totalRevenue > 0 ? ((gcashTotal / totalRevenue) * 100).toFixed(1) : '0.0'
+      },
+      total: {
+        amount: totalRevenue,
+        orders: totalOrders
+      }
+    });
+
+  } catch (err) {
+    console.error('Error fetching payment method stats:', err);
+    res.status(500).json({ 
+      error: 'Failed to fetch payment method statistics',
+      message: err.message 
+    });
+  }
+};

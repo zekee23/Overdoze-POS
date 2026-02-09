@@ -260,6 +260,39 @@ export const createProductVariant = async (req, res) => {
     }
 };
 
+// Update product variant price
+export const updateVariantPrice = async (req, res) => {
+    try {
+        const { productId, variantId } = req.params;
+        const { price } = req.body;
+        
+        // Input validation
+        if (price === undefined || price === null || isNaN(price) || price < 0) {
+            return res.status(400).json({ error: 'Valid price is required' });
+        }
+        
+        // Check if variant exists and belongs to the product
+        const variantExists = await pool.query(
+            'SELECT * FROM product_variants WHERE variant_id = $1 AND product_id = $2',
+            [variantId, productId]
+        );
+        
+        if (variantExists.rows.length === 0) {
+            return res.status(404).json({ error: 'Variant not found for this product' });
+        }
+        
+        const updatedVariant = await pool.query(
+            'UPDATE product_variants SET price = $1 WHERE variant_id = $2 AND product_id = $3 RETURNING *',
+            [price, variantId, productId]
+        );
+        
+        res.json(updatedVariant.rows[0]);
+    } catch (error) {
+        console.error('Error updating variant price:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 export const getCategID = async (req,res) => 
 {
     const  {category_id} = req.params;

@@ -7,6 +7,7 @@ import compression from "compression";
 
 import userRoutes from "./routes/userRouter.js";
 import OrdersRoutes from "./routes/OrdersRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
 
 import dashboardRoutes from './routes/dashboardRoutes.js';
 
@@ -59,6 +60,7 @@ app.use((req, res, next) => {
 // Arcjet protection is now applied only to specific registration endpoints in userRouter.js
 
 app.use("/api/users", userRoutes);
+app.use("/api/products", productRoutes);
 
 app.use("/api/dashboard", dashboardRoutes);
 app.use('/api', posroutes)

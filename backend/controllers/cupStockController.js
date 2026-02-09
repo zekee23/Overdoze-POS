@@ -104,3 +104,72 @@ export const addCupStock = async (req, res) => {
         client.release();
     }
 };
+
+export const updateStock = async (req, res) => {
+    const client = await pool.connect();
+    
+    try {
+        const { cup16oz, cup12oz, cup22oz } = req.body;
+        
+        // Validate input
+        if (cup16oz === undefined || cup12oz === undefined || cup22oz === undefined) {
+            return res.status(400).json({ 
+                error: 'cup16oz, cup12oz, and cup22oz are required' 
+            });
+        }
+        
+        // Validate that all values are non-negative numbers
+        const sizes = { '16oz': cup16oz, '12oz': cup12oz, '22oz': cup22oz };
+        for (const [size, quantity] of Object.entries(sizes)) {
+            if (isNaN(quantity) || quantity < 0) {
+                return res.status(400).json({ 
+                    error: `${size} must be a non-negative number` 
+                });
+            }
+        }
+        
+        await client.query('BEGIN');
+        
+        // Update each cup size stock
+        const updates = [];
+        
+        for (const [size_label, stock_count] of Object.entries(sizes)) {
+            // Update or insert stock for each size
+            const result = await client.query(`
+                INSERT INTO cup_stock (size_label, stock_count, updated_at)
+                VALUES ($1, $2, NOW())
+                ON CONFLICT (size_label) 
+                DO UPDATE SET 
+                    stock_count = $2,
+                    updated_at = NOW()
+                RETURNING size_label, stock_count, updated_at
+            `, [size_label, parseInt(stock_count)]);
+            
+            updates.push(result.rows[0]);
+        }
+        
+        await client.query('COMMIT');
+        
+        // Add status calculation for each updated size
+        const responseData = updates.map(stock => ({
+            ...stock,
+            stock_status: stock.stock_count <= 0 ? 'OUT OF STOCK' : 
+                         stock.stock_count <= 10 ? 'LOW STOCK' : 'IN STOCK',
+            status_color: stock.stock_count <= 0 ? '#dc3545' : 
+                         stock.stock_count <= 10 ? '#ffc107' : '#28a745'
+        }));
+        
+        res.json({
+            success: true,
+            message: 'Cup stock updated successfully',
+            updated_stock: responseData
+        });
+        
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error('ERROR updating cup stock:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    } finally {
+        client.release();
+    }
+};

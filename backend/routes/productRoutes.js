@@ -8,7 +8,8 @@ import {
   getProductVariants, 
   createProductWithVariants,
   getProductsWithVariants,
-  createProductVariant
+  createProductVariant,
+  updateVariantPrice
 
 } from "../controllers/productController.js";
 import { authenticateToken, requireAdmin, requireCashier } from "../middleware/auth.js";
@@ -30,6 +31,9 @@ router.get('/:productId/variants', authenticateToken, getProductVariants);
 
 // POST create variant for a specific product (admin only)
 router.post('/:productId/variants', authenticateToken, requireAdmin, createProductVariant);
+
+// PUT update variant price for a specific product (admin only)
+router.put('/:productId/variants/:variantId/price', authenticateToken, requireAdmin, updateVariantPrice);
 
 
 

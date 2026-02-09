@@ -6,10 +6,15 @@ export const createOrder = async (req, res) => {
   const client = await pool.connect();
 
   try {
-    const { cashier_id, cart, total_amount, session_id } = req.body;
+    const { cashier_id, cart, total_amount, session_id, payment_method } = req.body;
 
     if (!cart || cart.length === 0) {
       return res.status(400).json({ message: 'Cart is empty' });
+    }
+
+    // Validate payment method
+    if (payment_method && !['cash', 'gcash'].includes(payment_method)) {
+      return res.status(400).json({ message: 'Invalid payment method. Must be cash or gcash' });
     }
 
     // Validate session if provided
@@ -28,10 +33,10 @@ export const createOrder = async (req, res) => {
 
     // 1️⃣ Create ORDER
     const orderResult = await client.query(
-      `INSERT INTO orders (cashier_id, total_amount, session_id)
-       VALUES ($1, $2, $3)
+      `INSERT INTO orders (cashier_id, total_amount, session_id, payment_method)
+       VALUES ($1, $2, $3, $4)
        RETURNING order_id`,
-      [cashier_id, total_amount, session_id || null]
+      [cashier_id, total_amount, session_id || null, payment_method || 'cash']
     );
 
     const orderId = orderResult.rows[0].order_id;
@@ -150,6 +155,7 @@ export const getOrders = async (req, res) => {
       SELECT
         o.order_id,
         o.total_amount,
+        o.payment_method,
         o.created_at,
         u.username as cashier_name,
         json_agg(
@@ -183,7 +189,7 @@ export const getOrders = async (req, res) => {
       JOIN products p ON p.product_id = oi.product_id
       JOIN product_variants pv ON pv.variant_id = oi.variant_id
       LEFT JOIN user_table u ON u.uid = o.cashier_id
-      GROUP BY o.order_id, o.total_amount, o.created_at, u.username
+      GROUP BY o.order_id, o.total_amount, o.payment_method, o.created_at, u.username
       ORDER BY o.created_at DESC
       LIMIT 20
     `);
@@ -386,6 +392,7 @@ export const getOrderById = async (req, res) => {
       SELECT
         o.order_id,
         o.total_amount,
+        o.payment_method,
         o.created_at,
         u.username as cashier_name
       FROM orders o
