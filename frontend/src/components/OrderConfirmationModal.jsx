@@ -7,6 +7,8 @@ const OrderConfirmationModal = ({
   onConfirm,
   cart,
   cartTotal,
+  paymentMethod,
+  onPaymentMethodChange,
 }) => {
   const [cashInput, setCashInput] = useState("");
   const [displayCashInput, setDisplayCashInput] = useState("");
@@ -98,15 +100,20 @@ const OrderConfirmationModal = ({
   }, [lastQuickPress, lastQuickTime, displayCashInput, handleCashChange]);
 
   const handleConfirmOrder = () => {
-    const cashAmount = parseFloat(cashInput || displayCashInput) || 0;
-    if (cashAmount >= cartTotal) {
-      onConfirm({ cashAmount, change });
-      resetCashInput(); // Clear cash input after order confirmation
+    if (paymentMethod === 'cash') {
+      const cashAmount = parseFloat(cashInput || displayCashInput) || 0;
+      if (cashAmount >= cartTotal) {
+        onConfirm({ cashAmount, change });
+        resetCashInput(); // Clear cash input after order confirmation
+      }
+    } else {
+      // GCash payment - no cash calculation needed
+      onConfirm({ cashAmount: cartTotal, change: 0 });
     }
   };
 
   const cashAmount = parseFloat(cashInput || displayCashInput) || 0;
-  const canConfirm = cashAmount >= cartTotal;
+  const canConfirm = paymentMethod === 'cash' ? cashAmount >= cartTotal : true;
 
   // Reset cash input when modal closes
   useEffect(() => {
@@ -138,6 +145,26 @@ const OrderConfirmationModal = ({
 
         {/* BODY */}
         <div className="oc-body">
+          {/* PAYMENT METHOD SELECTION */}
+          <div className="oc-payment-method">
+            <label className="oc-payment-label">Payment Method:</label>
+            <div className="oc-payment-options">
+              <button 
+                className={`oc-payment-btn ${paymentMethod === 'cash' ? 'oc-payment-active' : ''}`}
+                onClick={() => onPaymentMethodChange('cash')}
+              >
+                 Cash
+              </button>
+              <button 
+                className={`oc-payment-btn ${paymentMethod === 'gcash' ? 'oc-payment-active' : ''}`}
+                onClick={() => onPaymentMethodChange('gcash')}
+              >
+                <img src="/gcash.png" alt="GCash" className="oc-payment-icon" />
+                GCash
+              </button>
+            </div>
+          </div>
+
           {cart.map((item, index) => (
             <div key={index} className="oc-item">
 
@@ -188,7 +215,8 @@ const OrderConfirmationModal = ({
           ))}
         </div>
 
-        {/* CASH CALCULATOR */}
+        {/* CASH CALCULATOR - Only show for cash payments */}
+        {paymentMethod === 'cash' && (
         <div className="oc-cash-section">
           <div className="oc-cash-input-row">
             <label className="oc-cash-label">Cash Received:</label>
@@ -238,6 +266,7 @@ const OrderConfirmationModal = ({
             </div>
           </div>
         </div>
+        )}
 
         {/* TOTAL */}
         <div className="oc-total">

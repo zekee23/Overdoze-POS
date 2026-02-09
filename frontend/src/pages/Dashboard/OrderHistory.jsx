@@ -51,6 +51,7 @@ const OrderHistory = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [singleOrderId, setSingleOrderId] = useState(null);
   const [singleDeleteModalVisible, setSingleDeleteModalVisible] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('all');
 
 
   const [pagination, setPagination] = useState({
@@ -109,7 +110,7 @@ const OrderHistory = () => {
       setSingleOrderId(null);
       
       // Refresh the data
-      await fetchOrderHistory(pagination.currentPage, selectedMonth);
+      await fetchOrderHistory(pagination.currentPage, selectedMonth, selectedPaymentMethod);
       await fetchPeakHours();
     } catch (error) {
       console.error('Delete order error:', error);
@@ -145,7 +146,7 @@ const OrderHistory = () => {
       setDeleteTarget(null);
       
       // Refresh the data
-      await fetchOrderHistory(1, selectedMonth);
+      await fetchOrderHistory(1, selectedMonth, selectedPaymentMethod);
       await fetchPeakHours();
       
     } catch (error) {
@@ -155,11 +156,11 @@ const OrderHistory = () => {
       setDeleteLoading(false);
     }
   };
-    const fetchOrderHistory = async (page = 1, month = selectedMonth) => {
+    const fetchOrderHistory = async (page = 1, month = selectedMonth, paymentMethod = selectedPaymentMethod) => {
     try {
       setLoading(true);
       const res = await api.get('/dashboard/order-history', {
-        params: { page, limit: pagination.limit, month }
+        params: { page, limit: pagination.limit, month, payment_method: paymentMethod }
       });
       setOrders(res.data.orders);
       setPagination(prev => ({
@@ -192,7 +193,7 @@ const OrderHistory = () => {
 
 const handleRefresh = async () => {
   try {
-    await fetchOrderHistory(1, selectedMonth);
+    await fetchOrderHistory(1, selectedMonth, selectedPaymentMethod);
     await fetchPeakHours();
     message.success('Data refreshed successfully');
   } catch (error) {
@@ -212,8 +213,8 @@ const formatToStandardTime = (hour) => {
 
 
   useEffect(() => {
-    fetchOrderHistory(1, selectedMonth);
-  }, [selectedMonth]);
+    fetchOrderHistory(1, selectedMonth, selectedPaymentMethod);
+  }, [selectedMonth, selectedPaymentMethod]);
 
   useEffect(() => {
     fetchPeakHours();
@@ -238,7 +239,7 @@ const formatToStandardTime = (hour) => {
           return;
         }
 
-        await fetchOrderHistory(1, selectedMonth);
+        await fetchOrderHistory(1, selectedMonth, selectedPaymentMethod);
         await fetchPeakHours();
       } catch (error) {
         console.error('Authentication error:', error);
@@ -252,11 +253,16 @@ const formatToStandardTime = (hour) => {
   }, [navigate]);
 
   const handlePageChange = (page) => {
-    fetchOrderHistory(page, selectedMonth);
+    fetchOrderHistory(page, selectedMonth, selectedPaymentMethod);
   };
 
   const handleMonthChange = (month) => {
     setSelectedMonth(month);
+    setPagination(prev => ({ ...prev, currentPage: 1 }));
+  };
+
+  const handlePaymentMethodChange = (paymentMethod) => {
+    setSelectedPaymentMethod(paymentMethod);
     setPagination(prev => ({ ...prev, currentPage: 1 }));
   };
 
@@ -287,6 +293,22 @@ const formatToStandardTime = (hour) => {
     dataIndex: 'total_amount',
     key: 'total_amount',
     render: (amount) => `₱${Number(amount).toFixed(2)}`
+  },
+  {
+    title: 'Payment Method',
+    dataIndex: 'payment_method',
+    key: 'payment_method',
+    render: (paymentMethod) => (
+      <Tag 
+        color={paymentMethod === 'cash' ? 'green' : 'purple'}
+        style={{ 
+          textTransform: 'uppercase',
+          fontWeight: 'bold'
+        }}
+      >
+        {paymentMethod || 'cash'}
+      </Tag>
+    )
   },
   {
     title: 'Date',
@@ -525,12 +547,12 @@ const formatToStandardTime = (hour) => {
           borderRadius: '12px',
           boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-            <div>
-              <Text strong style={{ color: '#f3f4f6', fontSize: '16px', marginBottom: '8px', display: 'block' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '24px' }}>
+            <div style={{ flex: 1, minWidth: '300px' }}>
+              <Text strong style={{ color: '#f3f4f6', fontSize: '16px', marginBottom: '12px', display: 'block' }}>
                 Filter by Month:
               </Text>
-              <Space size={[8, 8]}>
+              <Space size={[8, 8]} wrap>
                 <Button
                   type={selectedMonth === null ? 'primary' : 'default'}
                   onClick={() => handleMonthChange(null)}
@@ -563,12 +585,50 @@ const formatToStandardTime = (hour) => {
                 </Button>
               </Space>
             </div>
+
+            <div style={{ flex: 1, minWidth: '300px' }}>
+              <Text strong style={{ color: '#f3f4f6', fontSize: '16px', marginBottom: '12px', display: 'block' }}>
+                Filter by Payment Method:
+              </Text>
+              <Space size={[8, 8]} wrap>
+                <Button
+                  type={selectedPaymentMethod === 'all' ? 'primary' : 'default'}
+                  onClick={() => handlePaymentMethodChange('all')}
+                  style={selectedPaymentMethod === 'all' 
+                    ? { backgroundColor: '#3b82f6', borderColor: '#3b82f6' } 
+                    : { backgroundColor: '#374151', borderColor: '#4b5563', color: '#f3f4f6' }
+                  }
+                >
+                  All
+                </Button>
+                <Button
+                  type={selectedPaymentMethod === 'cash' ? 'primary' : 'default'}
+                  onClick={() => handlePaymentMethodChange('cash')}
+                  style={selectedPaymentMethod === 'cash' 
+                    ? { backgroundColor: '#10b981', borderColor: '#10b981' } 
+                    : { backgroundColor: '#374151', borderColor: '#4b5563', color: '#f3f4f6' }
+                  }
+                >
+                  Cash
+                </Button>
+                <Button
+                  type={selectedPaymentMethod === 'gcash' ? 'primary' : 'default'}
+                  onClick={() => handlePaymentMethodChange('gcash')}
+                  style={selectedPaymentMethod === 'gcash' 
+                    ? { backgroundColor: '#8b5cf6', borderColor: '#8b5cf6' } 
+                    : { backgroundColor: '#374151', borderColor: '#4b5563', color: '#f3f4f6' }
+                  }
+                >
+                  GCash
+                </Button>
+              </Space>
+            </div>
             
-            <div>
-              <Text strong style={{ color: '#f3f4f6', fontSize: '16px', marginBottom: '8px', display: 'block' }}>
+            <div style={{ flex: 1, minWidth: '300px' }}>
+              <Text strong style={{ color: '#f3f4f6', fontSize: '16px', marginBottom: '12px', display: 'block' }}>
                 Delete Orders:
               </Text>
-              <Space size={[8, 8]}>
+              <Space size={[8, 8]} wrap>
                 <Button
                   danger
                   icon={<DeleteOutlined />}

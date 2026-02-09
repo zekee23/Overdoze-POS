@@ -43,6 +43,7 @@ const POS = memo(() => {
   const [showClearCartModal, setShowClearCartModal] = useState(false);
   const [showOrderConfirmationModal, setShowOrderConfirmationModal] = useState(false);
   const [showStockModal, setShowStockModal] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('cash');
 
   const [removeIndex, setRemoveIndex] = useState(null);
   const [removeName, setRemoveName] = useState("");
@@ -334,6 +335,7 @@ const confirmOrder = async () => {
     await api.post('/orders', {
       cashier_id: user.uid,
       total_amount: cartTotal,
+      payment_method: paymentMethod,
       cart: cart.map(item => ({
         product_id: item.product_id,
         product_name: item.product_name,
@@ -657,6 +659,8 @@ const cancelOrder = () => {
         onConfirm={confirmOrder}
         cart={cart}
         cartTotal={cartTotal}
+        paymentMethod={paymentMethod}
+        onPaymentMethodChange={setPaymentMethod}
       />
 
       {/* Stock Input Modal */}

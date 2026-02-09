@@ -58,10 +58,17 @@ export const orderAPI = {
 
 export const dashboardAPI = {
   getHomeData: () => api.get('/dashboard/home-data'),
+  getPaymentStats: (period = 'today') => api.get(`/dashboard/payment-stats?period=${period}`),
 };
 
 export const cashDrawerAPI = {
   setStartingCash: (startingCash) => api.post('/cash-drawer/starting-cash', { starting_cash: startingCash }),
   getTodayStartingCash: () => api.get('/cash-drawer/starting-cash'),
   getExpectedCashInDrawer: () => api.get('/cash-drawer/expected-cash'),
+};
+
+export const cupStockAPI = {
+  getCupStock: () => api.get('/dashboard/cup-stock'),
+  addCupStock: (size_label, add_quantity) => api.post('/dashboard/cup-stock/add', { size_label, add_quantity }),
+  updateStock: (cup16oz, cup12oz, cup22oz) => api.put('/dashboard/cup-stock/update', { cup16oz, cup12oz, cup22oz }),
 };

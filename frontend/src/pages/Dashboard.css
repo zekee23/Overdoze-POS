@@ -163,3 +163,114 @@
 .trophy-icon .trophy-bronze {
   color: #CD7F32 !important;
 }
+
+/* Payment method select dropdown styling */
+.payment-method-select .ant-select-selector {
+  background-color: #374151 !important;
+  border: 1px solid #4b5563 !important;
+  color: #f3f4f6 !important;
+  border-radius: 8px !important;
+  height: 36px !important;
+}
+
+.payment-method-select .ant-select-selector:hover {
+  background-color: #4b5563 !important;
+  border-color: #6b7280 !important;
+}
+
+.payment-method-select .ant-select-selection-item {
+  color: #f3f4f6 !important;
+  line-height: 28px !important;
+}
+
+.payment-method-select .ant-select-arrow {
+  color: #f3f4f6 !important;
+}
+
+/* Dropdown menu styling */
+.ant-select-dropdown {
+  background-color: #1f2937 !important;
+  border: 1px solid #374151 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.ant-select-item {
+  color: #f3f4f6 !important;
+  background-color: transparent !important;
+}
+
+.ant-select-item:hover {
+  background-color: #374151 !important;
+}
+
+.ant-select-item-option-selected {
+  background-color: #3b82f6 !important;
+  color: #fff !important;
+}
+
+.ant-select-item-option-selected:hover {
+  background-color: #2563eb !important;
+}
+
+/* Modal styles */
+.ant-modal-content {
+  background-color: #1f2937 !important;
+  border: 1px solid #374151 !important;
+}
+
+.ant-modal-header {
+  background-color: #1f2937 !important;
+  border-bottom: 1px solid #374151 !important;
+}
+
+.ant-modal-title {
+  color: #f3f4f6 !important;
+}
+
+.ant-modal-close {
+  color: #9ca3af !important;
+}
+
+.ant-modal-close:hover {
+  color: #f3f4f6 !important;
+  background-color: #374151 !important;
+}
+
+/* Form input styles */
+.ant-form-item-label > label {
+  color: #f3f4f6 !important;
+}
+
+.ant-input {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f3f4f6 !important;
+}
+
+.ant-input:hover {
+  border-color: #60a5fa !important;
+}
+
+.ant-input:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Message notifications */
+.ant-message-notice-content {
+  background-color: #1f2937;
+  color: #f3f4f6;
+  border: 1px solid #374151;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dashboard-dark {
+    padding: 16px;
+  }
+  
+  .payment-method-select {
+    width: 130px !important;
+  }
+}

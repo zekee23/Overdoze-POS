@@ -57,6 +57,8 @@ const ProductPage = () => {
   const [createdProductId, setCreatedProductId] = useState(null);
   const [variants, setVariants] = useState([]);
   const [toast, setToast] = useState({ open: false, message: '', severity: 'success' });
+  const [priceEditModalVisible, setPriceEditModalVisible] = useState(false);
+  const [editingVariant, setEditingVariant] = useState(null);
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
@@ -334,6 +336,33 @@ const ProductPage = () => {
     }
   };
 
+  const handleEditPrice = (product, variant) => {
+    setEditingVariant({ product, variant });
+    setPriceEditModalVisible(true);
+  };
+
+  const handlePriceUpdate = async (values) => {
+    try {
+      setSubmitting(true);
+      await api.put(`/products/${editingVariant.product.product_id}/variants/${editingVariant.variant.variant_id}/price`, {
+        price: Number(values.price)
+      });
+      
+      setToast({ open: true, message: 'Price updated successfully!', severity: 'success' });
+      setPriceEditModalVisible(false);
+      setEditingVariant(null);
+      localStorage.removeItem(CACHE_KEY); // Clear cache after price update
+      fetchProducts();
+      setTimeout(() => {
+        setToast({ open: false, message: '', severity: 'success' });
+      }, 2500);
+    } catch (error) {
+      message.error('Failed to update price: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   // Performance optimized variant change handler with minimal debouncing
   
 
@@ -364,12 +393,12 @@ const ProductPage = () => {
       title: 'Variants',
       dataIndex: 'variants',
       key: 'variants',
-      width: 200,
-      render: (variants) => (
+      width: 280,
+      render: (variants, record) => (
         <div>
           {variants && variants.length > 0 ? (
             variants.map((variant, index) => (
-              <div key={variant.variant_id} style={{ marginBottom: '4px' }}>
+              <div key={variant.variant_id} style={{ marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Tag 
                   style={{ 
                     fontSize: '12px',
@@ -383,11 +412,26 @@ const ProductPage = () => {
                 <Text style={{ color: '#f3f4f6', fontSize: '12px' }}>
                   ₱{parseFloat(variant.price || 0).toFixed(2)}
                 </Text>
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<EditOutlined />}
+                  onClick={() => handleEditPrice(record, variant)}
+                  style={{ 
+                    fontSize: '10px',
+                    padding: '2px 6px',
+                    height: '20px',
+                    color: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderColor: 'rgba(59, 130, 246, 0.3)',
+                    borderRadius: '4px'
+                  }}
+                  title="Edit price"
+                />
                 {variant.is_default && (
                   <Tag 
                     style={{ 
                       fontSize: '10px', 
-                      marginLeft: '4px',
                       backgroundColor: 'rgba(16, 185, 129, 0.2)',
                       borderColor: '#10b981',
                       color: '#6ee7b7'
@@ -851,18 +895,157 @@ const ProductPage = () => {
           </Form>
         </Modal>
 
+        {/* Variants Modal */}
         <VariantsModal
-  open={variantsModalVisible}
-  onClose={() => {
-    setVariantsModalVisible(false);
-    setVariants([]);
-    setCreatedProductId(null);
-  }}
-  variants={variants}
-  setVariants={setVariants}
-  submitting={submitting}
-  onSubmit={handleVariantsSubmit}
-/>
+          open={variantsModalVisible}
+          onClose={() => {
+            setVariantsModalVisible(false);
+            setVariants([]);
+            setCreatedProductId(null);
+          }}
+          variants={variants}
+          setVariants={setVariants}
+          submitting={submitting}
+          onSubmit={handleVariantsSubmit}
+        />
+
+        {/* Price Edit Modal */}
+        <Modal
+          className="dashboard-modal"
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <EditOutlined style={{ color: '#3b82f6', fontSize: '18px' }} />
+              <span style={{ color: '#f3f4f6', fontSize: '16px', fontWeight: 'bold' }}>
+                Edit Variant Price
+              </span>
+            </div>
+          }
+          open={priceEditModalVisible}
+          onCancel={() => {
+            setPriceEditModalVisible(false);
+            setEditingVariant(null);
+          }}
+          footer={null}
+          width={400}
+          centered
+          closable={true}
+          styles={{
+            body: { 
+              backgroundColor: '#0f172a', 
+              color: '#f3f4f6', 
+              padding: '16px',
+              borderRadius: '8px'
+            },
+            header: { 
+              backgroundColor: '#0f172a', 
+              borderBottom: '1px solid #374151',
+              borderRadius: '8px 8px 0 0',
+              padding: '16px 20px'
+            },
+            content: { 
+              backgroundColor: '#0f172a', 
+              color: '#f3f4f6',
+              borderRadius: '8px',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              border: '1px solid #374151'
+            },
+            mask: { 
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              backdropFilter: 'blur(4px)'
+            }
+          }}
+          wrapClassName="dark-modal-wrapper"
+          zIndex={1000}
+        >
+          {editingVariant && (
+            <div>
+              <div style={{ marginBottom: '16px' }}>
+                <Text style={{ color: '#9ca3af', fontSize: '14px' }}>Product:</Text>
+                <div style={{ marginTop: '4px' }}>
+                  <Text strong style={{ color: '#f3f4f6', fontSize: '16px' }}>
+                    {editingVariant.product.product_name}
+                  </Text>
+                </div>
+              </div>
+              
+              <div style={{ marginBottom: '16px' }}>
+                <Text style={{ color: '#9ca3af', fontSize: '14px' }}>Variant:</Text>
+                <div style={{ marginTop: '4px' }}>
+                  <Tag 
+                    style={{ 
+                      fontSize: '14px',
+                      backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                      borderColor: '#3b82f6',
+                      color: '#93c5fd'
+                    }}
+                  >
+                    {editingVariant.variant.size_label}
+                  </Tag>
+                  <Text style={{ color: '#f3f4f6', fontSize: '14px', marginLeft: '8px' }}>
+                    Current price: ₱{parseFloat(editingVariant.variant.price || 0).toFixed(2)}
+                  </Text>
+                </div>
+              </div>
+
+              <Form
+                layout="vertical"
+                onFinish={handlePriceUpdate}
+                initialValues={{
+                  price: parseFloat(editingVariant.variant.price || 0).toFixed(2)
+                }}
+              >
+                <Form.Item
+                  name="price"
+                  label="New Price"
+                  rules={[
+                    { required: true, message: 'Please enter a price' },
+                    { 
+                      validator: (_, value) => {
+                        if (value && (isNaN(value) || parseFloat(value) <= 0)) {
+                          return Promise.reject('Price must be a positive number');
+                        }
+                        return Promise.resolve();
+                      }
+                    }
+                  ]}
+                >
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    prefix="₱"
+                    placeholder="Enter new price"
+                    style={{ 
+                      backgroundColor: '#374151', 
+                      borderColor: '#4b5563', 
+                      color: '#f3f4f6', 
+                      borderRadius: '6px' 
+                    }}
+                  />
+                </Form.Item>
+
+                <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
+                  <Space>
+                    <Button onClick={() => {
+                      setPriceEditModalVisible(false);
+                      setEditingVariant(null);
+                    }}>
+                      Cancel
+                    </Button>
+                    <Button 
+                      type="primary" 
+                      htmlType="submit"
+                      loading={submitting}
+                      style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
+                    >
+                      Update Price
+                    </Button>
+                  </Space>
+                </Form.Item>
+              </Form>
+            </div>
+          )}
+        </Modal>
 
       </div>
 
